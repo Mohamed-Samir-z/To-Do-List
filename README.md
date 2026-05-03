@@ -23,4 +23,4 @@ This is a simple, functional **To-Do List** application built with HTML, CSS, an
 This is an **educational project**. No user data is collected or sent to any external servers. All task data remains locally on the user's browser via `LocalStorage`.
 
 ---
-*Created by [Mohamed Samir](https://github.com/Mohamed-Samir_Z)*
+*Created by [Mohamed Samir](https://github.com/Mohamed-Samir-z)*
