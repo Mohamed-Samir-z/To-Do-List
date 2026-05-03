@@ -1,41 +1,57 @@
-const cacheName = "todo-v1";
-const assets = [
+const CACHE_NAME = "todo-v3";
+const ASSETS_TO_CACHE = [
     "./",
     "./index.html",
     "./style.css",
     "./script.js",
-    "./Click.wav", // اتأكد إن اسم ملف الصوت صح
+    "./Click.wav",
     "./manifest.json",
     "./icon.png",
 ];
 
-// تثبيت الـ Service Worker وحفظ الملفات
-self.addEventListener("install", (e) => {
-    e.waitUntil(
-        caches.open(cacheName).then((cache) => {
-        cache.addAll(assets);
+// 1. مرحلة التثبيت: حفظ الملفات الأساسية في الذاكرة
+self.addEventListener("install", (event) => {
+    event.waitUntil(
+        caches.open(CACHE_NAME).then((cache) => {
+        console.log("جاري حفظ ملفات الموقع في الكاش...");
+        return cache.addAll(ASSETS_TO_CACHE);
         }),
     );
+    // تخطي الانتظار لتفعيل التحديث فوراً
+    self.skipWaiting();
 });
 
-// تشغيل الموقع من الكاش لو النت مقطوع
-self.addEventListener("fetch", (e) => {
-    e.respondWith(
-        caches.match(e.request).then((res) => {
-        return res || fetch(e.request);
-        }),
-    );
-});
-
-// تحديث الكاش
-self.addEventListener("activate", (e) => {
-    e.waitUntil(
-        caches.keys().then((keys) => {
+// 2. مرحلة التفعيل: مسح الكاش القديم لو غيرنا الإصدار
+self.addEventListener("activate", (event) => {
+    event.waitUntil(
+        caches.keys().then((cacheNames) => {
         return Promise.all(
-            keys
-            .filter((key) => key !== cacheName)
-            .map((key) => caches.delete(key)),
+            cacheNames.map((cache) => {
+            if (cache !== CACHE_NAME) {
+                console.log("مسح الكاش القديم...");
+                return caches.delete(cache);
+            }
+            }),
         );
         }),
     );
+    return self.clients.claim();
 });
+
+// 3. الاستجابة للطلبات (السر هنا عشان الإدخال يشتغل)
+self.addEventListener("fetch", (event) => {
+    event.respondWith(
+        // بنحاول نجيب الملف من النت أولاً عشان لو فيه تحديثات
+        fetch(event.request).catch(() => {
+        // لو مفيش نت، بنطلعه من الكاش اللي حفظناه
+        return caches.match(event.request);
+        }),
+    );
+});
+
+// تسجيل الـ Service Worker
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+        .then(() => console.log("Service Worker Registered"))
+        .catch(err => console.log("Service Worker Failed", err));
+};
