@@ -3,7 +3,8 @@ const taskInput = document.getElementById('task-input');
 const addButton = document.getElementById('add-button');
 const taskList = document.getElementById('task-list');
 const clearButton = document.getElementById('clear-button');
-
+// اضافة مؤثر صوت عند التغيير
+const audio = new Audio('Click.wav');
 // 2. جلب البيانات من الـ LocalStorage (أو مصفوفة فارغة إذا كان أول استخدام)
 // تم دمج النصوص وحالة الـ checkbox في مصفوفة واحدة لضمان الدقة
 let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
@@ -53,9 +54,13 @@ function renderTasks() {
 
         // حدث تغيير حالة الـ Checkbox
         checkbox.addEventListener('change', () => {
+            //استدعاء الصوت عند التغيير
+            audio.currentTime = 0; // إعادة تعيين الصوت ليبدأ من البداية
+            audio.play().catch(e => console.error('Error playing sound:', e));
             tasks[index].completed = checkbox.checked;
             saveAndRefresh();
         });
+
 
         // حدث الضغط على زر الحذف
         deleteBtn.addEventListener('click', () => {
