@@ -1,3 +1,9 @@
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+        .then(() => console.log("Service Worker Registered"))
+        .catch(err => console.log("Service Worker Failed", err));
+}
+
 // 1. تعريف العناصر الأساسية من الـ HTML
 const taskInput = document.getElementById('task-input');
 const addButton = document.getElementById('add-button');
