@@ -15,34 +15,43 @@ let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 
 // 2. دالة إدارة الاسم (الذكاء الاصطناعي لتجربة المستخدم)
 async function checkUsername() {
+    // رقم التحديث الحالي - خليه متوافق مع نسخة الـ SW عشان تبقى منظم
+    const APP_VERSION = "v4"; 
+    let savedVersion = localStorage.getItem("appVersion");
     let name = localStorage.getItem("userName");
     let isRandom = localStorage.getItem("isRandomName") === "true";
     let reloadCount = parseInt(localStorage.getItem("reloadCount") || "0");
+
+    // لو النسخة قديمة (مثلاً كانت v3 أو مفيش خالص)، هنصفر الاسم عشان يطلبه تاني للترحيب
+    if (savedVersion !== APP_VERSION) {
+        localStorage.setItem("appVersion", APP_VERSION);
+        name = null; // ده هيخلي الشرط اللي تحت يتحقق ويفتح الـ Alert
+    }
 
     if (!name || (isRandom && reloadCount >= defaultNames.length)) {
         localStorage.setItem("reloadCount", "0");
         let clickCount = 0;
 
         const { value: userName } = await Swal.fire({
-            title: '<span style="color: #4A90E2;">نورّت يا بطل! 🌟</span>',
-            html: '<b>إحنا متشوقين نعرف اسمك عشان نخلي التجربة فريدة ليك</b>',
+            // عنوان يحسس المستخدم إن فيه حاجة جديدة حصلت
+            title: '<span style="color: #4A90E2;">تحديث جديد v4 وصل! ✨</span>',
+            html: '<b>نورّت من جديد! حابب نسجلك بلقب إيه في النسخة الجديدة؟</b>',
             input: 'text',
-            inputPlaceholder: 'اكتب اسمك أو لقبك المفضل هنا...',
+            inputPlaceholder: 'اكتب اسمك أو لقبك هنا...',
             showCancelButton: true,
-            cancelButtonText: 'تخطّي لحين آخر 🏃‍♂️',
-            confirmButtonText: 'اعتمِد الاسم 💾',
+            cancelButtonText: 'تخطّي مؤقتاً 🏃‍♂️',
+            confirmButtonText: 'اعتمِد اللقب 💾',
             confirmButtonColor: '#4A90E2',
             cancelButtonColor: '#718096',
             allowOutsideClick: false,
             preConfirm: (value) => {
                 if (!value && clickCount === 0) {
                     clickCount++;
-                    Swal.showValidationMessage('يا صاحب السعادة، الاسم بيخلي التطبيق أفخم! اضغط حفظ تاني لو حابب تتخطى 😉');
+                    Swal.showValidationMessage('عشان التحديث يكمل، يا ريت تكتب اسمك 😉');
                     return false;
                 }
                 return value;
-            },
-            footer: '<p style="color: #a0aec0; font-size: 0.8rem;">تذكّر: تقدر تغير اسمك في أي وقت من زر التعديل!</p>'
+            }
         });
 
         if (!userName || userName.trim() === "") {
