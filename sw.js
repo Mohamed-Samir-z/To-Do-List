@@ -1,4 +1,4 @@
-const cacheName = 'todo-v3'; // رفعنا النسخة لـ 3 عشان يمسح العك القديم
+const cacheName = 'todo-v4'; // رفعنا النسخة لـ 4 عشان يمسح العك القديم
 const assets = [
     './',
     './index.html',
