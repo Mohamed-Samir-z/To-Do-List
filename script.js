@@ -1,3 +1,35 @@
+// 1. إدارة اسم المستخدم
+function getUsername() {
+    let name = localStorage.getItem("userName");
+    if (!name) {
+        name = prompt("أهلاً بك في تحديثك الجديد! ما هو اسمك؟");
+        if (name) localStorage.setItem("userName", name);
+        else name = "الفخم"; // اسم افتراضي لو مكسل يكتب
+    }
+    return name;
+}
+
+// 2. تحديث الوقت والتاريخ
+function updateClock() {
+    const now = new Date();
+    const name = getUsername();
+    
+    // تنسيق التاريخ بالعربي
+    const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const dateStr = now.toLocaleDateString('en-US', dateOptions);
+    
+    // تنسيق الساعة
+    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+    document.getElementById("welcome-msg").innerText = `قائمة مهام ${name}`;
+    document.getElementById("current-date").innerText = dateStr;
+    document.getElementById("current-time").innerText = timeStr;
+}
+
+// تشغيل الساعة وتحديثها كل دقيقة
+setInterval(updateClock, 60000);
+updateClock();
+
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js')
         .then(() => console.log("Service Worker Registered"))
