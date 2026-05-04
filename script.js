@@ -1,177 +1,160 @@
-// مصفوفة الأسماء العشوائية
-const defaultNames = ["البطل", "الفخم", "القمر", "العسل"];
+/**
+ * To-Do List App - Professional Script
+ * المهندس: محمد سمير
+ */
 
-// 1. دالة طلب الاسم (عند أول دخول أو لو الاسم اتمسح)
+// 1. الإعدادات والبيانات الأساسية
+const defaultNames = ["البطل", "الفخم", "القمر", "العسل"];
+const taskInput = document.getElementById('task-input');
+const addButton = document.getElementById('add-button');
+const taskList = document.getElementById('task-list');
+const clearButton = document.getElementById('clear-button');
+const audio = new Audio('Click.wav');
+
+let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+// 2. دالة إدارة الاسم (الذكاء الاصطناعي لتجربة المستخدم)
 async function checkUsername() {
     let name = localStorage.getItem("userName");
-    
-    if (!name) {
+    let isRandom = localStorage.getItem("isRandomName") === "true";
+    let reloadCount = parseInt(localStorage.getItem("reloadCount") || "0");
+
+    if (!name || (isRandom && reloadCount >= defaultNames.length)) {
+        localStorage.setItem("reloadCount", "0");
+        let clickCount = 0;
+
         const { value: userName } = await Swal.fire({
-            title: 'مرحباً بك!',
+            title: '<span style="color: #4A90E2;">نورّت يا بطل! 🌟</span>',
+            html: '<b>إحنا متشوقين نعرف اسمك عشان نخلي التجربة فريدة ليك</b>',
             input: 'text',
-            inputLabel: 'اكتب اسمك عشان نخصص التطبيق ليك',
-            inputPlaceholder: 'محمد مثلاً...',
-            confirmButtonText: 'حفظ',
+            inputPlaceholder: 'اكتب اسمك أو لقبك المفضل هنا...',
+            showCancelButton: true,
+            cancelButtonText: 'تخطّي لحين آخر 🏃‍♂️',
+            confirmButtonText: 'اعتمِد الاسم 💾',
+            confirmButtonColor: '#4A90E2',
+            cancelButtonColor: '#718096',
             allowOutsideClick: false,
-            footer: 'ملاحظة: لو سبتها فاضية هنختارلك اسم جامد من عندنا 😉'
+            preConfirm: (value) => {
+                if (!value && clickCount === 0) {
+                    clickCount++;
+                    Swal.showValidationMessage('يا صاحب السعادة، الاسم بيخلي التطبيق أفخم! اضغط حفظ تاني لو حابب تتخطى 😉');
+                    return false;
+                }
+                return value;
+            },
+            footer: '<p style="color: #a0aec0; font-size: 0.8rem;">تذكّر: تقدر تغير اسمك في أي وقت من زر التعديل!</p>'
         });
 
-        // إذا ترك الخانة فارغة، نختار اسم عشوائي
-        let finalName = userName;
         if (!userName || userName.trim() === "") {
-            finalName = defaultNames[Math.floor(Math.random() * defaultNames.length)];
+            let randomName = defaultNames[0];
+            localStorage.setItem("userName", randomName);
+            localStorage.setItem("isRandomName", "true");
+            localStorage.setItem("reloadCount", "1");
+            renderWelcomeMsg(randomName);
+        } else {
+            localStorage.setItem("userName", userName);
+            localStorage.setItem("isRandomName", "false");
+            renderWelcomeMsg(userName);
         }
-
-        localStorage.setItem("userName", finalName);
-        renderWelcomeMsg(finalName);
-    } else {
+    } 
+    else if (isRandom) {
+        let nextName = defaultNames[reloadCount % defaultNames.length];
+        localStorage.setItem("userName", nextName); 
+        localStorage.setItem("reloadCount", reloadCount + 1);
+        renderWelcomeMsg(nextName);
+    } 
+    else {
         renderWelcomeMsg(name);
     }
 }
 
-function renderWelcomeMsg(name) {
-    const welcomeElem = document.getElementById("welcome-text");
-    if (welcomeElem) {
-        // بنحط الكلمة والاسم في نفس الـ h1 عشان نوفر مساحة
-        welcomeElem.innerText = `قائمة مهام ${name}`; 
-    }
-}
-// localStorage.clear();  // استخدمها لو حبيت تمسح كل البيانات وتبدأ من جديد
+// دالة تعديل الاسم يدوياً
+// دالة تعديل الاسم يدوياً بشكل "فخم"
 
-// 2. دالة تعديل الاسم باستخدام SweetAlert
 async function editName() {
     const currentName = localStorage.getItem("userName") || "بطل";
     
     const { value: newName } = await Swal.fire({
-        title: 'تعديل الاسم',
+        title: '<span style="color: #2D3748;">تغيير اللقب الغالي ✍️</span>',
         input: 'text',
-        inputValue: currentName, // يظهر الاسم القديم عشان يعدل عليه
+        inputValue: currentName,
+        inputLabel: 'حبيت ناديك بإيه المرة دي؟',
+        inputPlaceholder: 'مثلاً: الباشمهندس محمد...',
         showCancelButton: true,
-        confirmButtonText: 'تحديث',
-        cancelButtonText: 'إلغاء',
+        confirmButtonText: 'تحديث اللقب ✨',
+        cancelButtonText: 'خلك على قديمك 🔙',
+        confirmButtonColor: '#48BB78',
+        cancelButtonColor: '#E53E3E',
         inputValidator: (value) => {
-            if (!value) {
-                return 'لازم تكتب اسم أو اضغط إلغاء';
-            }
+            if (!value) return 'مينفعش تسيبها فاضية يا فنان! 😅';
+            if (value === currentName) return 'ده لقبك الحالي أصلاً! جرب حاجة جديدة 🚀';
         }
     });
 
     if (newName) {
         localStorage.setItem("userName", newName);
+        localStorage.setItem("isRandomName", "false");
         renderWelcomeMsg(newName);
-        // تنبيه خفيف بنجاح التعديل
+        
         Swal.fire({
             toast: true,
             position: 'top-end',
             icon: 'success',
-            title: 'تم تحديث الاسم بنجاح',
+            title: `أهلاً بك يا ${newName} في حلتك الجديدة! 🎩`,
             showConfirmButton: false,
-            timer: 1500
+            timer: 2500,
+            timerProgressBar: true
         });
     }
 }
 
-// 3. دالة عرض الاسم (ثابتة)
 function renderWelcomeMsg(name) {
     const welcomeElem = document.getElementById("welcome-text");
-    if (welcomeElem) {
-        welcomeElem.innerText = `قائمة مهام ${name}`;
-    }
+    if (welcomeElem) welcomeElem.innerText = `قائمة مهام ${name}`; 
 }
 
-// 3. دالة تحديث الوقت فقط (كل ثانية)
+// 3. دالة الساعة
 function updateClock() {
     const now = new Date();
     const dateElem = document.getElementById("live-date");
     const timeElem = document.getElementById("live-time");
-
-    if (dateElem) {
-        dateElem.innerText = now.toLocaleDateString('ar-EG', { 
-            weekday: 'long', day: 'numeric', month: 'long' 
-        });
-    }
-
-    if (timeElem) {
-        timeElem.innerText = now.toLocaleTimeString('ar-EG', { 
-            hour: '2-digit', minute: '2-digit' 
-        });
-    }
+    if (dateElem) dateElem.innerText = now.toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' });
+    if (timeElem) timeElem.innerText = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
 }
 
-// تشغيل الساعة كل ثانية
-setInterval(updateClock, 1000);
-updateClock();
-
-// تشغيل فحص الاسم أول ما الصفحة تفتح
-window.onload = checkUsername;
-
-// 1. تعريف العناصر الأساسية من الـ HTML
-const taskInput = document.getElementById('task-input');
-const addButton = document.getElementById('add-button');
-const taskList = document.getElementById('task-list');
-const clearButton = document.getElementById('clear-button');
-// اضافة مؤثر صوت عند التغيير
-const audio = new Audio('Click.wav');
-// 2. جلب البيانات من الـ LocalStorage (أو مصفوفة فارغة إذا كان أول استخدام)
-// تم دمج النصوص وحالة الـ checkbox في مصفوفة واحدة لضمان الدقة
-let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-
-/**
- * 3. دالة العرض (Rendering)
- * مسؤولة عن مسح القائمة وإعادة بنائها بناءً على البيانات الحالية
- */
+// 4. إدارة المهام
 function renderTasks() {
-    // مسح القائمة الحالية قبل إعادة الرسم
     taskList.innerHTML = '';
-
     tasks.forEach((task, index) => {
-        // إنشاء عنصر القائمة (li)
         const li = document.createElement('li');
-        
-        // أ. عنصر النص (Span)
         const textSpan = document.createElement('span');
         textSpan.textContent = task.text;
-        // تطبيق التنسيق إذا كانت المهمة مكتملة
-        if (task.completed) {
-            textSpan.style.textDecoration = 'line-through';
-            textSpan.style.opacity = '0.6';
-        }
+        if (task.completed) { textSpan.style.textDecoration = 'line-through'; textSpan.style.opacity = '0.6'; }
         li.appendChild(textSpan);
 
-        // ب. حاوية الـ Checkbox (باستخدام التنسيق الذي اخترته من Uiverse)
         const labelContainer = document.createElement('label');
         labelContainer.classList.add('checkbox-btn');
-        
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.checked = task.completed;
-        
         const checkmark = document.createElement('span');
         checkmark.classList.add('checkmark');
-        
         labelContainer.appendChild(checkbox);
         labelContainer.appendChild(checkmark);
         li.appendChild(labelContainer);
 
-        // ج. زر الحذف (Delete Button)
         const deleteBtn = document.createElement('button');
         deleteBtn.innerHTML = 'Delete';
-        
-        // --- الأحداث (Events) داخل العناصر ---
 
-        // حدث تغيير حالة الـ Checkbox
         checkbox.addEventListener('change', () => {
-            //استدعاء الصوت عند التغيير
-            audio.currentTime = 0; // إعادة تعيين الصوت ليبدأ من البداية
-            audio.play().catch(e => console.error('Error playing sound:', e));
+            audio.currentTime = 0;
+            audio.play().catch(e => console.error(e));
             tasks[index].completed = checkbox.checked;
             saveAndRefresh();
         });
 
-
-        // حدث الضغط على زر الحذف
         deleteBtn.addEventListener('click', () => {
-            tasks.splice(index, 1); // حذف العنصر من المصفوفة بناءً على مكانه (index)
+            tasks.splice(index, 1);
             saveAndRefresh();
         });
 
@@ -180,61 +163,54 @@ function renderTasks() {
     });
 }
 
-/**
- * 4. دالة الحفظ والتحديث
- * تقوم بحفظ المصفوفة في الـ LocalStorage وإعادة عرض القائمة
- */
 function saveAndRefresh() {
     localStorage.setItem('tasks', JSON.stringify(tasks));
     renderTasks();
 }
 
-// 5. إضافة مهمة جديدة عند الضغط على الزر
 addButton.addEventListener('click', () => {
     const val = taskInput.value.trim();
-    
-    // التحقق من المدخلات (Validation)
-    if (val === '') {
-        alert('Please enter a task before adding.');
-        return;
-    }
-    if (val.length > 100) {
-        alert('Please enter a task less than 100 characters.');
-        return;
-    }
-    // منع التكرار
-    if (tasks.some(t => t.text === val)) {
-        alert('This task already exists.');
-        return;
-    }
-
-    // إضافة الكائن الجديد للمصفوفة
-    tasks.push({
-        text: val,
-        completed: false
-    });
-
-    taskInput.value = ''; // تفريغ الحقل
+    if (val === '') return;
+    if (tasks.some(t => t.text === val)) return alert('المهمة موجودة فعلاً');
+    tasks.push({ text: val, completed: false });
+    taskInput.value = '';
     saveAndRefresh();
 });
 
-// 6. دعم الضغط على زر Enter للإضافة
-taskInput.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') {
-        event.preventDefault();
-        addButton.click();
-    }
-});
+taskInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addButton.click(); });
 
-// 7. زر المسح الشامل (Clear All)
 clearButton.addEventListener('click', () => {
-    if (tasks.length === 0) return; // لا يفعل شيء إذا كانت القائمة فارغة
-    
-    if (confirm('Are you sure you want to clear all tasks?')) {
-        tasks = [];
-        saveAndRefresh();
-    }
+    if (tasks.length === 0) return;
+
+    Swal.fire({
+        title: 'هل أنت متأكد؟ ⚠️',
+        text: "هذا الإجراء سيمسح جميع مهامك، ولن تستطيع التراجع!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#E53E3E',
+        cancelButtonColor: '#718096',
+        confirmButtonText: 'نعم، امسح الكل! 🔥',
+        cancelButtonText: 'تراجعت، خليهم 🛡️'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            tasks = [];
+            saveAndRefresh();
+            Swal.fire(
+                'تم المسح! ✨',
+                'قائمتك الآن نظيفة وجاهزة لمهام جديدة.',
+                'success'
+            );
+        }
+    });
 });
 
-// 8. تشغيل الدالة لأول مرة عند تحميل الصفحة لعرض المهام المخزنة
-renderTasks();
+// 5. التشغيل النهائي
+window.addEventListener('DOMContentLoaded', () => {
+    updateClock();
+    setInterval(updateClock, 1000);
+    checkUsername();
+    renderTasks();
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("./sw.js").catch(err => console.log(err));
+    }
+});

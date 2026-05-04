@@ -1,17 +1,31 @@
-const cacheName = 'todo-v2'; // لو كنت استخدمت v2 قبل كدة خليها v3
+const cacheName = 'todo-v3'; // رفعنا النسخة لـ 3 عشان يمسح العك القديم
 const assets = [
     './',
     './index.html',
     './style.css',
     './script.js',
-    './sweetalert2.all.min.js'
+    './sweetalert2.all.min.js',
+    './Click.wav',  // ضفنا الصوت هنا عشان ميوقفش الكود أوفلاين
+    './icon.png'    // ضيف أي صورة بتستخدمها هنا
 ];
 
 self.addEventListener('install', e => {
     e.waitUntil(
         caches.open(cacheName).then(cache => {
-        console.log('Caching assets...');
-        return cache.addAll(assets);
+            console.log('Caching assets...');
+            return cache.addAll(assets);
+        })
+    );
+});
+
+// تفعيل الكاش الجديد ومسح القديم
+self.addEventListener('activate', e => {
+    e.waitUntil(
+        caches.keys().then(keys => {
+            return Promise.all(keys
+                .filter(key => key !== cacheName)
+                .map(key => caches.delete(key))
+            );
         })
     );
 });
@@ -19,26 +33,7 @@ self.addEventListener('install', e => {
 self.addEventListener('fetch', e => {
     e.respondWith(
         caches.match(e.request).then(res => {
-        return res || fetch(e.request);
+            return res || fetch(e.request);
         })
     );
 });
-
-// 3. الاستجابة للطلبات (السر هنا عشان الإدخال يشتغل)
-self.addEventListener("fetch", (event) => {
-    event.respondWith(
-        // بنحاول نجيب الملف من النت أولاً عشان لو فيه تحديثات
-        fetch(event.request).catch(() => {
-        // لو مفيش نت، بنطلعه من الكاش اللي حفظناه
-        return caches.match(event.request);
-        }),
-    );
-});
-
-// تسجيل الـ Service Worker
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker
-        .register("./sw.js")
-        .then(() => console.log("Service Worker Registered"))
-        .catch((err) => console.log("Service Worker Failed", err));
-}
