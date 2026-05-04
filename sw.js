@@ -1,28 +1,26 @@
-const cacheName = "todo-v1";
+const cacheName = 'todo-v2'; // لو كنت استخدمت v2 قبل كدة خليها v3
 const assets = [
-    "./",
-    "./index.html",
-    "./style.css",
-    "./script.js",
-    "./sweetalert2.all.min.js", // ضيف المكتبة هنا عشان تشتغل أوفلاين
-    "./icon.png",
+    './',
+    './index.html',
+    './style.css',
+    './script.js',
+    './sweetalert2.all.min.js'
 ];
 
-// تثبيت الـ Service Worker وتخزين الملفات
-self.addEventListener("install", (e) => {
+self.addEventListener('install', e => {
     e.waitUntil(
-        caches.open(cacheName).then((cache) => {
-        cache.addAll(assets);
-        }),
+        caches.open(cacheName).then(cache => {
+        console.log('Caching assets...');
+        return cache.addAll(assets);
+        })
     );
 });
 
-// تشغيل التطبيق من الكاش في حال عدم وجود نت
-self.addEventListener("fetch", (e) => {
+self.addEventListener('fetch', e => {
     e.respondWith(
-        caches.match(e.request).then((res) => {
+        caches.match(e.request).then(res => {
         return res || fetch(e.request);
-        }),
+        })
     );
 });
 
