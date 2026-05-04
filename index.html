@@ -13,10 +13,13 @@
     <div class="container">
 
       <div class="header-container">
-        <h1 id="welcome-msg">تحميل...</h1>
+        <div class="user-content">
+          <h1 id="welcome-text">قائمة مهام...</h1>
+          <button onclick="editName()" class="edit-btn">📝</button>
+        </div>
+      
         <div class="date-time-box">
-          <span id="current-date"></span>
-          <span id="current-time"></span>
+          <span id="live-date"></span> | <span id="live-time"></span>
         </div>
       </div>
 
@@ -29,6 +32,7 @@
       </ul>
       <button id="clear-button">Clear All</button>
     </div>
+    <script src="sweetalert2.all.min.js"></script>
     <script src="script.js"></script>
   </body>
 </html>

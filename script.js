@@ -1,40 +1,109 @@
-// 1. إدارة اسم المستخدم
-function getUsername() {
+// مصفوفة الأسماء العشوائية
+const defaultNames = ["البطل", "الفخم", "القمر", "العسل"];
+
+// 1. دالة طلب الاسم (عند أول دخول أو لو الاسم اتمسح)
+async function checkUsername() {
     let name = localStorage.getItem("userName");
+    
     if (!name) {
-        name = prompt("أهلاً بك في تحديثك الجديد! ما هو اسمك؟");
-        if (name) localStorage.setItem("userName", name);
-        else name = "الفخم"; // اسم افتراضي لو مكسل يكتب
+        const { value: userName } = await Swal.fire({
+            title: 'مرحباً بك!',
+            input: 'text',
+            inputLabel: 'اكتب اسمك عشان نخصص التطبيق ليك',
+            inputPlaceholder: 'محمد مثلاً...',
+            confirmButtonText: 'حفظ',
+            allowOutsideClick: false,
+            footer: 'ملاحظة: لو سبتها فاضية هنختارلك اسم جامد من عندنا 😉'
+        });
+
+        // إذا ترك الخانة فارغة، نختار اسم عشوائي
+        let finalName = userName;
+        if (!userName || userName.trim() === "") {
+            finalName = defaultNames[Math.floor(Math.random() * defaultNames.length)];
+        }
+
+        localStorage.setItem("userName", finalName);
+        renderWelcomeMsg(finalName);
+    } else {
+        renderWelcomeMsg(name);
     }
-    return name;
 }
 
-// 2. تحديث الوقت والتاريخ
+function renderWelcomeMsg(name) {
+    const welcomeElem = document.getElementById("welcome-text");
+    if (welcomeElem) {
+        // بنحط الكلمة والاسم في نفس الـ h1 عشان نوفر مساحة
+        welcomeElem.innerText = `قائمة مهام ${name}`; 
+    }
+}
+// localStorage.clear();  // استخدمها لو حبيت تمسح كل البيانات وتبدأ من جديد
+
+// 2. دالة تعديل الاسم باستخدام SweetAlert
+async function editName() {
+    const currentName = localStorage.getItem("userName") || "بطل";
+    
+    const { value: newName } = await Swal.fire({
+        title: 'تعديل الاسم',
+        input: 'text',
+        inputValue: currentName, // يظهر الاسم القديم عشان يعدل عليه
+        showCancelButton: true,
+        confirmButtonText: 'تحديث',
+        cancelButtonText: 'إلغاء',
+        inputValidator: (value) => {
+            if (!value) {
+                return 'لازم تكتب اسم أو اضغط إلغاء';
+            }
+        }
+    });
+
+    if (newName) {
+        localStorage.setItem("userName", newName);
+        renderWelcomeMsg(newName);
+        // تنبيه خفيف بنجاح التعديل
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'تم تحديث الاسم بنجاح',
+            showConfirmButton: false,
+            timer: 1500
+        });
+    }
+}
+
+// 3. دالة عرض الاسم (ثابتة)
+function renderWelcomeMsg(name) {
+    const welcomeElem = document.getElementById("welcome-text");
+    if (welcomeElem) {
+        welcomeElem.innerText = `قائمة مهام ${name}`;
+    }
+}
+
+// 3. دالة تحديث الوقت فقط (كل ثانية)
 function updateClock() {
     const now = new Date();
-    const name = getUsername();
-    
-    // تنسيق التاريخ بالعربي
-    const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    const dateStr = now.toLocaleDateString('en-US', dateOptions);
-    
-    // تنسيق الساعة
-    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    const dateElem = document.getElementById("live-date");
+    const timeElem = document.getElementById("live-time");
 
-    document.getElementById("welcome-msg").innerText = `قائمة مهام ${name}`;
-    document.getElementById("current-date").innerText = dateStr;
-    document.getElementById("current-time").innerText = timeStr;
+    if (dateElem) {
+        dateElem.innerText = now.toLocaleDateString('ar-EG', { 
+            weekday: 'long', day: 'numeric', month: 'long' 
+        });
+    }
+
+    if (timeElem) {
+        timeElem.innerText = now.toLocaleTimeString('ar-EG', { 
+            hour: '2-digit', minute: '2-digit' 
+        });
+    }
 }
 
-// تشغيل الساعة وتحديثها كل دقيقة
-setInterval(updateClock, 60000);
+// تشغيل الساعة كل ثانية
+setInterval(updateClock, 1000);
 updateClock();
 
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js')
-        .then(() => console.log("Service Worker Registered"))
-        .catch(err => console.log("Service Worker Failed", err));
-}
+// تشغيل فحص الاسم أول ما الصفحة تفتح
+window.onload = checkUsername;
 
 // 1. تعريف العناصر الأساسية من الـ HTML
 const taskInput = document.getElementById('task-input');
