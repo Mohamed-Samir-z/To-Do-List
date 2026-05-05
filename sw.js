@@ -1,24 +1,23 @@
-const cacheName = 'todo-v4'; // رفعنا النسخة لـ 4 عشان يمسح العك القديم
+const cacheName = 'todo-v4.1'; // غير دي لـ 4.1 دلوقتي عشان التعديل يلقط
 const assets = [
     './',
     './index.html',
     './style.css',
     './script.js',
     './sweetalert2.all.min.js',
-    './Click.wav',  // ضفنا الصوت هنا عشان ميوقفش الكود أوفلاين
-    './icon.png'    // ضيف أي صورة بتستخدمها هنا
+    './Click.wav',
+    './icon.png'
 ];
 
 self.addEventListener('install', e => {
+    self.skipWaiting(); // <--- السطر ده هو "كلمة السر" للتحديث الفوري
     e.waitUntil(
         caches.open(cacheName).then(cache => {
-            console.log('Caching assets...');
             return cache.addAll(assets);
         })
     );
 });
 
-// تفعيل الكاش الجديد ومسح القديم
 self.addEventListener('activate', e => {
     e.waitUntil(
         caches.keys().then(keys => {

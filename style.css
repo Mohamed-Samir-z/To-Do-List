@@ -1,10 +1,11 @@
-*{
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: 'Poppins', sans-serif;
 }
-body{
+
+body {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -15,20 +16,10 @@ body{
     overflow-x: hidden;
     overflow-y: auto;
 }
-header{
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 20px 100px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 99;
-}
-.container{
-    width: 95%; /* مهم للموبايل */
-    max-width: 450px; /* وسعناها قليلاً لتناسب العناصر الجديدة */
+
+.container {
+    width: 95%;
+    max-width: 450px;
     min-width: 340px;
     margin: 0 auto;
     border-radius: 10px;
@@ -39,13 +30,9 @@ header{
     align-items: center;
 }
 
-/* .title{
-    font-weight: 600;
-    font-size: 2em;
-} */
 .header-container {
+    min-width: 50%;
     padding: 10px 15px;
-    /* قللنا المسافة الرأسية جداً */
     background: linear-gradient(135deg, #1e3c72, #2a5298);
     color: white;
     text-align: center;
@@ -58,34 +45,17 @@ header{
     flex-direction: column;
     align-items: center;
     gap: 5px;
-    /* مسافة صغيرة جداً بين الاسم والزرار */
     margin-bottom: 5px;
 }
 
 #welcome-text {
     font-size: 1.4rem;
-    /* صغرنا الحجم شوية عشان المساحة */
     margin: 5px 0;
     color: #ffd700;
 }
 
-#main-title {
-    font-size: 1.1rem;
-    margin: 0;
-    opacity: 0.9;
-}
-
-.titles-wrapper {
-    display: flex;
-    flex-direction: column;
-    /* يخلي العنوان والاسم فوق بعض */
-    align-items: center;
-    gap: 5px;
-}
-
 .edit-btn {
     background: rgba(255, 255, 255, 0.15);
-    /* خلفية خفيفة جداً */
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 8px;
     padding: 4px 8px;
@@ -93,22 +63,15 @@ header{
     font-size: 14px;
     transition: all 0.3s ease;
     display: block;
-    align-items: center;
-    gap: 5px;
+    color: white;
+    margin-bottom: 8px;
 }
 
-/* حركة عند وضع الماوس على الزرار */
-.edit-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: scale(1.05);
-    /* تكبير بسيط */
-}
-
-/* إضافة نص صغير بجانب الأيقونة لزيادة الوضوح */
 .edit-btn::after {
     content: "Edit Name";
     font-size: 12px;
     color: white;
+    margin-left: 5px;
 }
 
 .date-time-box span {
@@ -120,9 +83,9 @@ header{
 #live-time {
     font-weight: bold;
     color: #ffd700;
-    /* لون ذهبي خفيف للساعة */
 }
-.input-container{
+
+.input-container {
     width: 340px;
     display: flex;
     justify-content: space-between;
@@ -134,7 +97,7 @@ header{
     border-radius: 10px;
 }
 
-#task-input{
+#task-input {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
@@ -142,7 +105,8 @@ header{
     border-radius: 5px;
     font-size: 16px;
 }
-#add-button{
+
+#add-button {
     padding: 10px 20px;
     background-color: #4CAF50;
     color: #fff;
@@ -151,77 +115,83 @@ header{
     cursor: pointer;
     font-size: 16px;
 }
-#add-button:hover{
-    color: #fff;
-    box-shadow: #ffffff 0px 0px 6px;
-}
 
-#task-list{
-    width: 80%;
+#task-list {
+    width: 95%;
+    max-width: 400px;
     counter-reset: task-counter;
     list-style: none;
-    flex-direction: column;
     padding: 0;
     margin-top: 20px;
 }
 
-#task-list li{
+#task-list li {
+    position: relative;
+    background: #E53E3E;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* الطبقة البيضاء المتحركة */
+.task-content {
+    background: white;
+    padding: 15px 15px 15px 45px;
+    /* مساحة للرقم شمال */
     display: flex;
-    position: relative;
-    justify-content: flex-start;
     align-items: center;
-    gap: 15px;
-    padding: 10px 15px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    font-size: large;
-}
-#task-list li span {
-    flex-grow: 1; /* يخلي النص يملأ الفراغ ويزق الأزرار لليمين */
-    word-break: break-all; /* عشان لو الكلمة طويلة ما تطلعش بره */
-    transition: 0.3s;
-}
-#task-list li::before {
-    counter-increment: task-counter;
-    content: counter(task-counter) ". ";
     position: relative;
-    left: 0px;
-    min-width: 25px;
+    z-index: 2;
+    transition: transform 0.3s ease;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    width: 100%;
+}
+
+/* الرقم شمال خالص */
+.task-content::before {
+    counter-increment: task-counter;
+    content: counter(task-counter) ".";
+    position: absolute;
+    left: 15px;
     font-weight: bold;
     color: #333;
 }
 
-li:hover{
-    color: #13ad8c;
-    border-bottom: 3px solid #13ad8c;
-    font-weight: bold;
+/* النص في النص */
+.task-text {
+    flex-grow: 1;
+    text-align: left;
+    margin-right: 15px;
+    word-break: break-all;
+    font-size: 1.1rem;
+    color: #333;
 }
 
-li input[type="checkbox"]{
+/* التشيك بوكس يمين النص */
+.checkbox-btn {
+    order: 2;
+    flex-shrink: 0;
+}
+
+.swipe-bg {
     position: absolute;
-    right: 74px;
-    width: 20px;
-    transform: scale(1.3);
-    cursor: pointer;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: #E53E3E;
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+    color: white;
+    font-weight: bold;
+    z-index: 1;
+    content: 'حذف 🗑️';
 }
 
-#task-list li button{
-    padding: 5px 10px;
-    background-color: #4CAF50;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-}
-#task-list li button:hover{
-    background-color: red;
-    border: none;
-    font-size: 14.5px;
-    box-shadow: red 0px 0px 10px;
-}
-#clear-button{
+#clear-button {
     padding: 10px 20px;
     background-color: #4CAF50;
     color: #fff;
@@ -231,55 +201,22 @@ li input[type="checkbox"]{
     font-size: 16px;
     margin-top: 30px;
     margin-bottom: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-#clear-button:hover{
-    background-color: red;
-    color: #fff;
-    border: none;
-    border-radius: 20px;
-    margin-top: 20px;
-    margin-bottom: 25px;
-    font-size: 30px;
-    box-shadow: red 0px 0px 10px;
 }
 
-
-/* From Uiverse.io by boryanakrasteva */
-/* Customize the label (the checkbox-btn) */
+/* ستايل التشيك بوكس بتاعك بدون تعديل */
 .checkbox-btn {
     display: block;
     position: relative;
-    right:0;
     height: 25px;
     width: 25px;
-    padding-left: 0;
-    margin-bottom: 0;
-    flex-shrink: 0;
     cursor: pointer;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
 }
 
-/* Hide the browser's default checkbox */
 .checkbox-btn input {
     position: absolute;
-    cursor: pointer;
-    height: 0;
-    width: 0;
-    
+    opacity: 0;
 }
 
-.checkbox-btn label {
-    cursor: pointer;
-    font-size: 14px;
-}
-
-/* Create a custom checkbox */
 .checkmark {
     position: absolute;
     top: 0;
@@ -296,29 +233,24 @@ li input[type="checkbox"]{
     box-shadow: inset #ffffff -1px -1px 1px;
 }
 
-/* Create the checkmark/indicator (hidden when not checked) */
 .checkmark:after {
     content: "";
     position: absolute;
     visibility: hidden;
-    opacity: 0;
     left: 50%;
     top: 40%;
     width: 10px;
     height: 14px;
     border: 2px solid #0ea021;
-    filter: drop-shadow(0px 0px 10px #0ea021);
     border-width: 0 2.5px 2.5px 0;
-    transition: .2s linear;
     transform: translate(-50%, -50%) rotate(-90deg) scale(0.2);
+    transition: .2s linear;
 }
 
-/* Show the checkmark when checked */
 .checkbox-btn input:checked~.checkmark:after {
     visibility: visible;
     opacity: 1;
     transform: translate(-50%, -50%) rotate(0deg) scale(1);
-    animation: pulse 1s ease-in;
 }
 
 .checkbox-btn input:checked~.checkmark {
@@ -326,14 +258,68 @@ li input[type="checkbox"]{
     border: none;
 }
 
-@keyframes pulse {
+.info-btn {
+    padding: 8px ;
+    cursor: pointer;
+    margin-left: 10px;
+}
 
-    0%,
-    100% {
-        transform: translate(-50%, -50%) rotate(0deg) scale(1);
+/* حاوية الوصف */
+.task-description {
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease-in-out;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    /* خليناها أبيض عشان متتداخلش مع الأحمر */
+    font-size: 0.9rem;
+    color: #ffd700;
+    padding: 0 15px;
+    text-align: right;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    position: relative;
+    z-index: 3;
+    /* عشان تظهر فوق طبقة الحذف */
+}
+
+.task-description.open {
+    max-height: 200px;
+    padding: 10px 15px;
+    border-top: 1px solid #eee;
+}
+
+/* زر التعديل الصغير داخل الوصف */
+.edit-desc-icon {
+    float: left;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: #1e3c72;
+    background: #f0f0f0;
+    padding: 2px 8px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* أنيميشن الحذف: تصغير واختفاء */
+@keyframes remove-task {
+    0% {
+        transform: scale(1);
+        opacity: 1;
     }
 
     50% {
-        transform: translate(-50%, -50%) rotate(0deg) scale(1.6);
+        transform: scale(1.2);
+        opacity: 0.5;
     }
+
+    100% {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+
+.removing {
+    animation: remove-task 0.5s forwards;
+    pointer-events: none;
+    /* عشان ملمسهاش وهي بتتمسح */
 }

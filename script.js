@@ -10,13 +10,23 @@ const addButton = document.getElementById('add-button');
 const taskList = document.getElementById('task-list');
 const clearButton = document.getElementById('clear-button');
 const audio = new Audio('Click.wav');
+const deleteAudio = new Audio("switch.wav");
+const friendlyMessages = [
+    (name) => `عاش يا ${name}! إنجاز عالمي والله.. بس قولي صليت على النبي النهاردة؟ ﷺ`,
+    (name) => `الله ينور يا ${name}! كدة إنت في السليم.. كمل يا بطل ربنا يوفقك. 🚀`,
+    (name) => `تمت بنجاح! خد لك بريك يا ${name} واشرب حاجة، بس أوعى تنسى الصلاة فى موعدها! ☕️🕋`,
+    (name) => `إيه الحلاوة دي يا ${name}؟ مجهود جبار.. بارك الله فيك وفي وقتك. ❤️`,
+    (name) => `وحش الكون يا ${name}! خلصت المهمة؟ صلي على النبي كدة في سرك وادعي لنا. 😊`,
+    (name) => `جامد جدي! خلصت دي؟ اللي بعده يا ${name}.. وقلبك يبقى حاضر مع ربنا. 💪` ,
+    (name) => `ممتاز يا ${name}! كدة إنت ماشي صح.. بس خليك فاكر إن كل مهمة بتقربك من ربنا. 🌟`
+];
 
 let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 
 // 2. دالة إدارة الاسم (الذكاء الاصطناعي لتجربة المستخدم)
 async function checkUsername() {
     // رقم التحديث الحالي - خليه متوافق مع نسخة الـ SW عشان تبقى منظم
-    const APP_VERSION = "v4"; 
+    const APP_VERSION = "v4.1"; // غير دي لـ 4.1 دلوقتي عشان التعديل يلقط
     let savedVersion = localStorage.getItem("appVersion");
     let name = localStorage.getItem("userName");
     let isRandom = localStorage.getItem("isRandomName") === "true";
@@ -34,7 +44,7 @@ async function checkUsername() {
 
         const { value: userName } = await Swal.fire({
             // عنوان يحسس المستخدم إن فيه حاجة جديدة حصلت
-            title: '<span style="color: #4A90E2;">تحديث جديد v4 وصل! ✨</span>',
+            title: '<span style="color: #4A90E2;">تحديث جديد وصل! ✨</span>',
             html: '<b>نورّت من جديد! حابب نسجلك بلقب إيه في النسخة الجديدة؟</b>',
             input: 'text',
             inputPlaceholder: 'اكتب اسمك أو لقبك هنا...',
@@ -109,7 +119,7 @@ async function editName() {
             toast: true,
             position: 'top-end',
             icon: 'success',
-            title: `أهلاً بك يا ${newName} في حلتك الجديدة! 🎩`,
+            title: `أهلاً بك يا ${newName} في نسختك الجديدة! 🎩`,
             showConfirmButton: false,
             timer: 2500,
             timerProgressBar: true
@@ -132,42 +142,145 @@ function updateClock() {
 }
 
 // 4. إدارة المهام
+
+
+
+
 function renderTasks() {
     taskList.innerHTML = '';
     tasks.forEach((task, index) => {
         const li = document.createElement('li');
-        const textSpan = document.createElement('span');
-        textSpan.textContent = task.text;
-        if (task.completed) { textSpan.style.textDecoration = 'line-through'; textSpan.style.opacity = '0.6'; }
-        li.appendChild(textSpan);
+        
+        // بناء هيكل المهمة (طبقتين فوق بعض)
+        li.innerHTML = `
+            <div class="swipe-bg"><span>حذف 🗑️</span></div>
+            <div class="task-content">
+                <label class="checkbox-btn">
+                    <input type="checkbox" ${task.completed ? "checked" : ""}>
+                    <span class="checkmark"></span>
+                </label>
+                <span class="task-text" style="${task.completed ? "text-decoration: line-through; opacity: 0.6;" : ""}">
+                ${task.text}
+                </span>
+                <span class="info-btn">ℹ️</span> 
+            </div>
+            <div class="task-description">${task.desc || "اضغط لتعديل الوصف..."}</div>
+        `;
 
-        const labelContainer = document.createElement('label');
-        labelContainer.classList.add('checkbox-btn');
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.checked = task.completed;
-        const checkmark = document.createElement('span');
-        checkmark.classList.add('checkmark');
-        labelContainer.appendChild(checkbox);
-        labelContainer.appendChild(checkmark);
-        li.appendChild(labelContainer);
+        const content = li.querySelector('.task-content');
+        const checkbox = li.querySelector('input[type="checkbox"]');
+        let startX = 0;
+        let currentTranslate = 0;
 
-        const deleteBtn = document.createElement('button');
-        deleteBtn.innerHTML = 'Delete';
+        // منطق السحب لليمين
+        content.addEventListener('touchstart', e => {
+            startX = e.touches[0].clientX;
+            content.style.transition = 'none'; // نلغي الانيميشن أثناء السحب
+        });
 
+        content.addEventListener('touchmove', e => {
+            let moveX = e.touches[0].clientX;
+            let diff = moveX - startX;
+
+            if (diff > 0) { // سحب لليمين فقط
+                currentTranslate = diff;
+                content.style.transform = `translateX(${currentTranslate}px)`;
+            }
+        });
+
+        content.addEventListener('touchend', () => {
+            content.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            
+            if (currentTranslate > 150) { // لو سحب مسافة كافية للحذف
+                // 1. تشغيل صوت الحذف
+                playDeleteSound();
+
+                // 2. إضافة كلاس الأنيميشن (النفضة)
+                li.classList.add('removing');
+
+                // 3. تحريك العنصر بره الشاشة تماماً
+                content.style.transform = 'translateX(100%)';
+
+                // 4. الحذف الفعلي من البيانات بعد انتهاء الأنيميشن
+                setTimeout(() => {
+                    tasks.splice(index, 1);
+                    saveAndRefresh();
+                }, 400); // 400ms هي نفس مدة أنيميشن الـ CSS
+            } else {
+                content.style.transform = 'translateX(0)'; // يرجع لمكانه لو مسحبش كفاية
+            }
+            currentTranslate = 0;
+        });
+
+        // منطق التشيك بوكس
         checkbox.addEventListener('change', () => {
             audio.currentTime = 0;
-            audio.play().catch(e => console.error(e));
+            audio.play().catch(e => {});
             tasks[index].completed = checkbox.checked;
+            
+            if (checkbox.checked) {
+                const name = localStorage.getItem("userName") || "يا بطل";
+                const msg = friendlyMessages[Math.floor(Math.random() * friendlyMessages.length)](name);
+                Swal.fire({
+                    toast: true, position: 'top-end', icon: 'success',
+                    title: msg, showConfirmButton: false, timer: 3000
+                });
+            }
             saveAndRefresh();
         });
 
-        deleteBtn.addEventListener('click', () => {
-            tasks.splice(index, 1);
-            saveAndRefresh();
+        // داخل renderTasks - استبدل جزء الـ infoBtn والـ descDiv بهذا الكود:
+
+        const infoBtn = li.querySelector('.info-btn');
+        const descDiv = li.querySelector('.task-description');
+
+        infoBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            
+            // 1. لو مفيش وصف أصلاً، افتح الألرت فوراً للكتابة
+            if (!tasks[index].desc || tasks[index].desc.trim() === "") {
+                const { value: text } = await Swal.fire({
+                    title: 'إضافة تفاصيل للمهمة 📝',
+                    input: 'textarea',
+                    inputPlaceholder: 'اكتب تفاصيل المهمة هنا...',
+                    showCancelButton: true,
+                    confirmButtonText: 'حفظ',
+                    cancelButtonText: 'إلغاء'
+                });
+
+                if (text) {
+                    tasks[index].desc = text;
+                    saveAndRefresh();
+                }
+            } else {
+                // 2. لو فيه وصف، افتحه وقفله عادي
+                descDiv.classList.toggle('open');
+            }
         });
 
-        li.appendChild(deleteBtn);
+        // إضافة زرار تعديل "جوه" الوصف لو كان فيه نص
+        if (tasks[index].desc) {
+            descDiv.innerHTML = `
+                <span class="edit-desc-icon">Edit ✍️</span>
+                <p>${tasks[index].desc}</p>
+            `;
+            
+            descDiv.querySelector('.edit-desc-icon').addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const { value: text } = await Swal.fire({
+                    title: 'تعديل التفاصيل 📝',
+                    input: 'textarea',
+                    inputValue: tasks[index].desc,
+                    showCancelButton: true,
+                    confirmButtonText: 'تحديث'
+                });
+                if (text !== undefined) {
+                    tasks[index].desc = text;
+                    saveAndRefresh();
+                }
+            });
+        }
+
         taskList.appendChild(li);
     });
 }
@@ -180,7 +293,30 @@ function saveAndRefresh() {
 addButton.addEventListener('click', () => {
     const val = taskInput.value.trim();
     if (val === '') return;
-    if (tasks.some(t => t.text === val)) return alert('المهمة موجودة فعلاً');
+
+    // التأكد إذا كانت المهمة موجودة فعلاً
+    if (tasks.some(t => t.text === val)) {
+        const name = localStorage.getItem("userName") || "يا بطل";
+        
+        // إظهار الرسالة الفخمة
+        Swal.fire({
+            title: 'موجودة قبل كدة! 🧐',
+            text: `يا ${name}، المهمة دي إنت ضفتها قبل كدة.. ركز يا وحش عشان وفتح عيونك الحلوه!`,
+            icon: 'info',
+            confirmButtonText: 'تمام، حصل خير ✅',
+            confirmButtonColor: '#4A90E2',
+            showClass: {
+                popup: 'animate__animated animate__fadeInDown'
+            },
+            hideClass: {
+                popup: 'animate__animated animate__fadeOutUp'
+            }
+        });
+        
+        taskInput.value = ''; // فضي الخانة عشان يكتب حاجة جديدة
+        return; 
+    }
+
     tasks.push({ text: val, completed: false });
     taskInput.value = '';
     saveAndRefresh();
@@ -202,6 +338,7 @@ clearButton.addEventListener('click', () => {
         cancelButtonText: 'تراجعت، خليهم 🛡️'
     }).then((result) => {
         if (result.isConfirmed) {
+            playDeleteSound();
             tasks = [];
             saveAndRefresh();
             Swal.fire(
@@ -223,3 +360,10 @@ window.addEventListener('DOMContentLoaded', () => {
         navigator.serviceWorker.register("./sw.js").catch(err => console.log(err));
     }
 });
+
+
+// 2. عدل دالة playDeleteSound عشان تبقى كدة:
+function playDeleteSound() {
+    deleteAudio.currentTime = 0; // عشان لو حذفت كذا حاجة ورا بعض يلحق يبدأ من الأول
+    deleteAudio.play().catch(e => console.log("الصوت محتاج تفاعل من المستخدم الأول أو الاسم غلط"));
+}
