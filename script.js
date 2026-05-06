@@ -47,7 +47,7 @@ async function checkUsername() {
             title: '<span style="color: #4A90E2;">تحديث جديد وصل! ✨</span>',
             html: '<b>نورّت من جديد! حابب نسجلك بلقب إيه في النسخة الجديدة؟</b>',
             input: 'text',
-            inputPlaceholder: 'اكتب اسمك أو لقبك هنا...',
+            inputPlaceholder: 'اكتب اسمك أو لقبك هنا بالعربى...',
             showCancelButton: true,
             cancelButtonText: 'تخطّي مؤقتاً 🏃‍♂️',
             confirmButtonText: 'اعتمِد اللقب 💾',
@@ -167,6 +167,45 @@ function renderTasks() {
             <div class="task-description">${task.desc || "اضغط لتعديل الوصف..."}</div>
         `;
 
+        // جوه renderTasks لكل مهمة
+        const taskTextSpan = li.querySelector('.task-text');
+        let pressTimer;
+
+        // لما المستخدم يبدأ يلمس الشاشة
+        taskTextSpan.addEventListener('touchstart', (e) => {
+            pressTimer = setTimeout(async () => {
+                // ده اللي هيحصل لما يثبت صباعه لمدة ثانية
+                const { value: newTaskText } = await Swal.fire({
+                    title: 'تعديل المهمة ✍️',
+                    input: 'text',
+                    inputValue: tasks[index].text,
+                    showCancelButton: true,
+                    confirmButtonText: 'تحديث',
+                    cancelButtonText: 'إلغاء',
+                    inputValidator: (value) => {
+                        if (!value) {
+                            return 'ما ينفعش تسيب المهمة فاضية! 😅';
+                        }
+                    }
+                });
+
+                if (newTaskText) {
+                    tasks[index].text = newTaskText;
+                    saveAndRefresh();
+                }
+            }, 800); // 800 مللي ثانية يعني ثانية واحدة
+        });
+
+        // لو شال صباعه قبل الثانية، نلغي التايمر عشان ميتفتحش التعديل
+        taskTextSpan.addEventListener('touchend', () => {
+            clearTimeout(pressTimer);
+        });
+
+        // لو حرك صباعه (بيعمل سحب مثلاً) نلغي التايمر برضه
+        taskTextSpan.addEventListener('touchmove', () => {
+            clearTimeout(pressTimer);
+        });
+
         const content = li.querySelector('.task-content');
         const checkbox = li.querySelector('input[type="checkbox"]');
         let startX = 0;
@@ -223,7 +262,7 @@ function renderTasks() {
                 const msg = friendlyMessages[Math.floor(Math.random() * friendlyMessages.length)](name);
                 Swal.fire({
                     toast: true, position: 'top-end', icon: 'success',
-                    title: msg, showConfirmButton: false, timer: 3000
+                    title: msg, showConfirmButton: false, timerProgressBar: true, timer: 3000
                 });
             }
             saveAndRefresh();
@@ -301,7 +340,7 @@ addButton.addEventListener('click', () => {
         // إظهار الرسالة الفخمة
         Swal.fire({
             title: 'موجودة قبل كدة! 🧐',
-            text: `يا ${name}، المهمة دي إنت ضفتها قبل كدة.. ركز يا وحش عشان وفتح عيونك الحلوه!`,
+            text: `يا ${name}، المهمة دي إنت ضفتها قبل كدة.. ركز وفتح عيونك الحلوه!`,
             icon: 'info',
             confirmButtonText: 'تمام، حصل خير ✅',
             confirmButtonColor: '#4A90E2',
@@ -359,8 +398,38 @@ window.addEventListener('DOMContentLoaded', () => {
     if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("./sw.js").catch(err => console.log(err));
     }
+    
+    showPropheticGreeting();
 });
 
+function showPropheticGreeting() {
+    const msg = "صَلِّ عَلَى رَسُولِ اللهِ";
+    
+    // 1. استدعاء ملف الصوت البشري
+    const sallaAudio = new Audio('salla.mp3');
+    sallaAudio.currentTime = 0; // عشان لو تم استدعاء الدالة دي أكتر من مرة، الصوت يشتغل من الأول   
+    // 2. إظهار السويت ألرت
+    Swal.fire({
+        title: `<span style="color: #2D3748;">${msg} ﷺ</span>`,
+        html: '<p style="font-size: 1.1rem;">يومك مبارك ومليء بالإنجازات يا بطل 🌟</p>',
+        confirmButtonText: 'عليه أفضل الصلاة والسلام',
+        confirmButtonColor: '#1e3c72',
+        timer: 2800,
+        timerProgressBar: true,
+        didOpen: () => {
+            // أول ما الألرت يفتح، الصوت يشتغل فوراً
+            sallaAudio.play().catch(e => {
+                console.log("المتصفح منع التشغيل التلقائي، مفيش مشكلة");
+            });
+        },
+        showClass: {
+            popup: 'animate__animated animate__zoomIn'
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOut'
+        }
+    });
+}
 
 // 2. عدل دالة playDeleteSound عشان تبقى كدة:
 function playDeleteSound() {

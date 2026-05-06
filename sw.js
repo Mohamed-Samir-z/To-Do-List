@@ -6,7 +6,9 @@ const assets = [
     './script.js',
     './sweetalert2.all.min.js',
     './Click.wav',
-    './icon.png'
+    './icon.png',
+    './switch.wav',
+    './Salla.mp3'
 ];
 
 self.addEventListener('install', e => {
