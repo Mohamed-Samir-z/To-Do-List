@@ -26,7 +26,7 @@ let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 // 2. دالة إدارة الاسم (الذكاء الاصطناعي لتجربة المستخدم)
 async function checkUsername() {
     // رقم التحديث الحالي - خليه متوافق مع نسخة الـ SW عشان تبقى منظم
-    const APP_VERSION = "v4.1"; // غير دي لـ 4.1 دلوقتي عشان التعديل يلقط
+    const APP_VERSION = "v4.2"; // غير دي لـ 4.2 دلوقتي عشان التعديل يلقط
     let savedVersion = localStorage.getItem("appVersion");
     let name = localStorage.getItem("userName");
     let isRandom = localStorage.getItem("isRandomName") === "true";
