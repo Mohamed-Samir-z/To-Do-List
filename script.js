@@ -4,7 +4,7 @@
  */
 
 // 1. الإعدادات والبيانات الأساسية
-const defaultNames = ["البطل", "الفخم", "القمر", "العسل"];
+const defaultNames = ["بطل", "فخم", "قمر", "عسل"];
 const taskInput = document.getElementById('task-input');
 const addButton = document.getElementById('add-button');
 const taskList = document.getElementById('task-list');
@@ -24,26 +24,94 @@ const friendlyMessages = [
 let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 
 // 2. دالة إدارة الاسم (الذكاء الاصطناعي لتجربة المستخدم)
+// async function checkUsername() {
+//     // رقم التحديث الحالي - خليه متوافق مع نسخة الـ SW عشان تبقى منظم
+//     const APP_VERSION = "v4.2"; // غير دي لـ 4.2 دلوقتي عشان التعديل يلقط
+//     let savedVersion = localStorage.getItem("appVersion");
+//     let name = localStorage.getItem("userName");
+//     let isRandom = localStorage.getItem("isRandomName") === "true";
+//     let reloadCount = parseInt(localStorage.getItem("reloadCount") || "0");
+
+//     // لو النسخة قديمة (مثلاً كانت v3 أو مفيش خالص)، هنصفر الاسم عشان يطلبه تاني للترحيب
+//     if (savedVersion !== APP_VERSION) {
+//         localStorage.setItem("appVersion", APP_VERSION);
+//         name = null; // ده هيخلي الشرط اللي تحت يتحقق ويفتح الـ Alert
+//     }
+
+//     if (!name || (isRandom && reloadCount >= defaultNames.length)) {
+//         localStorage.setItem("reloadCount", "0");
+//         let clickCount = 0;
+
+//         const { value: userName } = await Swal.fire({
+//             // عنوان يحسس المستخدم إن فيه حاجة جديدة حصلت
+//             title: '<span style="color: #4A90E2;">تحديث جديد وصل! ✨</span>',
+//             html: '<b>نورّت من جديد! حابب نسجلك بلقب إيه في النسخة الجديدة؟</b>',
+//             input: 'text',
+//             inputPlaceholder: 'اكتب اسمك أو لقبك هنا بالعربى...',
+//             showCancelButton: true,
+//             cancelButtonText: 'تخطّي مؤقتاً 🏃‍♂️',
+//             confirmButtonText: 'اعتمِد اللقب 💾',
+//             confirmButtonColor: '#4A90E2',
+//             cancelButtonColor: '#718096',
+//             allowOutsideClick: false,
+//             preConfirm: (value) => {
+//                 if (!value && clickCount === 0) {
+//                     clickCount++;
+//                     Swal.showValidationMessage('عشان التحديث يكمل، يا ريت تكتب اسمك 😉');
+//                     return false;
+//                 }
+//                 return value;
+//             }
+//         });
+
+//         if (!userName || userName.trim() === "") {
+//             let randomName = defaultNames[0];
+//             localStorage.setItem("userName", randomName);
+//             localStorage.setItem("isRandomName", "true");
+//             localStorage.setItem("reloadCount", "1");
+//             renderWelcomeMsg(`ال${randomName}`);
+//             showPropheticGreeting(randomName);
+//         } else {
+//             localStorage.setItem("userName", userName);
+//             localStorage.setItem("isRandomName", "false");
+//             renderWelcomeMsg(userName);
+//             showPropheticGreeting(userName);
+//         }
+//         if (localStorage.getItem("userName")){
+//             showPropheticGreeting(localStorage.getItem("userName"));
+//         }
+//     } 
+//     else if (isRandom) {
+//         let nextName = defaultNames[reloadCount % defaultNames.length];
+//         localStorage.setItem("userName", nextName); 
+//         localStorage.setItem("reloadCount", reloadCount + 1);
+//         renderWelcomeMsg(`ال${nextName}`);
+//         showPropheticGreeting(nextName);
+//     } 
+//     else {
+//         renderWelcomeMsg(name);
+//         showPropheticGreeting(name , true);
+//     }
+// }
+
 async function checkUsername() {
-    // رقم التحديث الحالي - خليه متوافق مع نسخة الـ SW عشان تبقى منظم
-    const APP_VERSION = "v4.2"; // غير دي لـ 4.2 دلوقتي عشان التعديل يلقط
+    const APP_VERSION = "v4.3";
     let savedVersion = localStorage.getItem("appVersion");
     let name = localStorage.getItem("userName");
     let isRandom = localStorage.getItem("isRandomName") === "true";
     let reloadCount = parseInt(localStorage.getItem("reloadCount") || "0");
 
-    // لو النسخة قديمة (مثلاً كانت v3 أو مفيش خالص)، هنصفر الاسم عشان يطلبه تاني للترحيب
     if (savedVersion !== APP_VERSION) {
         localStorage.setItem("appVersion", APP_VERSION);
-        name = null; // ده هيخلي الشرط اللي تحت يتحقق ويفتح الـ Alert
+        name = null; 
     }
 
+    // 1. مرحلة تحديد أو تحديث الاسم (بدون نداء أي صلاة هنا)
     if (!name || (isRandom && reloadCount >= defaultNames.length)) {
         localStorage.setItem("reloadCount", "0");
         let clickCount = 0;
 
         const { value: userName } = await Swal.fire({
-            // عنوان يحسس المستخدم إن فيه حاجة جديدة حصلت
             title: '<span style="color: #4A90E2;">تحديث جديد وصل! ✨</span>',
             html: '<b>نورّت من جديد! حابب نسجلك بلقب إيه في النسخة الجديدة؟</b>',
             input: 'text',
@@ -65,27 +133,35 @@ async function checkUsername() {
         });
 
         if (!userName || userName.trim() === "") {
-            let randomName = defaultNames[0];
-            localStorage.setItem("userName", randomName);
+            name = defaultNames[0];
+            localStorage.setItem("userName", name);
             localStorage.setItem("isRandomName", "true");
             localStorage.setItem("reloadCount", "1");
-            renderWelcomeMsg(randomName);
         } else {
-            localStorage.setItem("userName", userName);
+            name = userName;
+            localStorage.setItem("userName", name);
             localStorage.setItem("isRandomName", "false");
-            renderWelcomeMsg(userName);
         }
     } 
     else if (isRandom) {
-        let nextName = defaultNames[reloadCount % defaultNames.length];
-        localStorage.setItem("userName", nextName); 
+        name = defaultNames[reloadCount % defaultNames.length];
+        localStorage.setItem("userName", name); 
         localStorage.setItem("reloadCount", reloadCount + 1);
-        renderWelcomeMsg(nextName);
     } 
-    else {
-        renderWelcomeMsg(name);
-    }
+
+    // 2. مرحلة التحديث البصري (Render)
+    const finalName = localStorage.getItem("userName");
+    const isActuallyRandom = localStorage.getItem("isRandomName") === "true";
+    renderWelcomeMsg(isActuallyRandom ? `ال${finalName}` : finalName);
+
+    // 3. الضربة القاضية: نداء الصلاة "مرة واحدة فقط" لكل الحالات في نهاية الدالة
+    // لو اسم جديد استنى شوية، لو قديم اشتغل فوراً
+    const isNewUser = (savedVersion !== APP_VERSION || !name);
+    setTimeout(() => {
+        showPropheticGreeting(finalName, !isNewUser);
+    }, isNewUser ? 1000 : 100); 
 }
+
 
 // دالة تعديل الاسم يدوياً
 // دالة تعديل الاسم يدوياً بشكل "فخم"
@@ -331,7 +407,21 @@ function saveAndRefresh() {
 
 addButton.addEventListener('click', () => {
     const val = taskInput.value.trim();
-    if (val === '') return;
+    if (val === ''){
+        const name = localStorage.getItem("userName") || "يا بطل";
+        
+        Swal.fire({
+            title: 'فين المهمة؟ 🧐',
+            text: `يا ${name}، الخانة فاضية! اكتب حاجة ورينا شطارتك..`,
+            icon: 'warning',
+            confirmButtonText: 'حاضر، هكتب أهو ✅',
+            confirmButtonColor: '#4A90E2',
+            showClass: {
+                popup: 'animate__animated animate__shakeX' // حركة "نفضة" خفيفة عشان تنبهه
+            }
+        });
+        return;
+    };
 
     // التأكد إذا كانت المهمة موجودة فعلاً
     if (tasks.some(t => t.text === val)) {
@@ -389,50 +479,162 @@ clearButton.addEventListener('click', () => {
     });
 });
 
-// 5. التشغيل النهائي
-window.addEventListener('DOMContentLoaded', () => {
-    updateClock();
-    setInterval(updateClock, 1000);
-    checkUsername();
-    renderTasks();
-    if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("./sw.js").catch(err => console.log(err));
-    }
-    
-    showPropheticGreeting();
-});
+const shareMessage = `
+*تطبيق الـ To-Do List الأقوى!* 🚀
 
-function showPropheticGreeting() {
-    const msg = "صَلِّ عَلَى رَسُولِ اللهِ";
-    
-    // 1. استدعاء ملف الصوت البشري
-    const sallaAudio = new Audio('salla.mp3');
-    sallaAudio.currentTime = 0; // عشان لو تم استدعاء الدالة دي أكتر من مرة، الصوت يشتغل من الأول   
-    // 2. إظهار السويت ألرت
-    Swal.fire({
-        title: `<span style="color: #2D3748;">${msg} ﷺ</span>`,
-        html: '<p style="font-size: 1.1rem;">يومك مبارك ومليء بالإنجازات يا بطل 🌟</p>',
-        confirmButtonText: 'عليه أفضل الصلاة والسلام',
-        confirmButtonColor: '#1e3c72',
-        timer: 2800,
-        timerProgressBar: true,
-        didOpen: () => {
-            // أول ما الألرت يفتح، الصوت يشتغل فوراً
-            sallaAudio.play().catch(e => {
-                console.log("المتصفح منع التشغيل التلقائي، مفيش مشكلة");
-            });
-        },
-        showClass: {
-            popup: 'animate__animated animate__zoomIn'
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOut'
-        }
+، جربت التطبيق ده جميل جداً؟ 
+من تصميم الباشمهندس *محمد سمير* 🛠️
+
+✅ بيشتغل *أوفلاين* تماماً (بدون إنترنت).
+✅ سريع جداً ومنظم.
+✅ والأهم إنه بيفكرك بـ *الصلاة على النبي ﷺ* طول ما إنت شغال.
+
+نظّم وقتك وأنجز مهامك بذكاء من هنا:
+`;
+// إضافة مستمع الحدث لزرار المشاركة
+const shareButton = document.getElementById('share-button');
+    if (shareButton) {
+        shareButton.addEventListener('click', async () => {
+            const name = localStorage.getItem("userName") || "يا بطل";
+            
+            // رابط الموقع الحقيقي بتاعك
+            const siteUrl = "https://mohamed-samir-z.github.io/To-Do-List/"; 
+            
+            // رابط التحميل المباشر (تأكد إن ملف الـ APK مرفوع بنفس الاسم ده)
+            const apkDirectLink = siteUrl + "todo-app.apk";
+
+            const shareMessage = `
+            *تطبيق الـ To-Do List الأقوى!* 🚀
+
+            ، جربت التطبيق ده جميل جداً؟ 
+            من تصميم الباشمهندس *محمد سمير* 🛠️
+
+            ✅ بيشتغل *أوفلاين* تماماً (بدون إنترنت).
+            ✅ سريع جداً ومنظم.
+            ✅ والأهم إنه بيفكرك بـ *الصلاة على النبي ﷺ* طول ما إنت شغال.
+
+            نظّم وقتك وأنجز مهامك بذكاء من هنا:
+
+            🔗 *رابط الموقع للتصفح والاستخدام:*
+            ${siteUrl}
+
+            📥 *رابط تحميل التطبيق مباشرة (APK):*
+            ${apkDirectLink}
+
+            *التطبيق مبعوتلك من: ${name}* 🎩
+            `;
+
+            try {
+                if (navigator.share) {
+                    await navigator.share({
+                        title: 'تطبيق المهندس محمد سمير',
+                        text: shareMessage
+                    });
+                } else {
+                    // لو مفيش دعم للمشاركة ينسخ الرسالة بالكامل
+                    navigator.clipboard.writeText(shareMessage).then(() => {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'تم نسخ الرسالة والروابط! ارسلها الآن 🚀',
+                            showConfirmButton: false,
+                            timer: 2500
+                        });
+                    });
+                }
+            } catch (err) {
+                console.log('User cancelled share');
+            }
+        });
+    };
+
+// دالة احتياطية لنسخ الرابط لو المشاركة مش مدعومة
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'تم نسخ رابط التطبيق! ارسله لأصحابك 🚀',
+            showConfirmButton: false,
+            timer: 2000
+        });
     });
 }
 
-// 2. عدل دالة playDeleteSound عشان تبقى كدة:
-function playDeleteSound() {
-    deleteAudio.currentTime = 0; // عشان لو حذفت كذا حاجة ورا بعض يلحق يبدأ من الأول
-    deleteAudio.play().catch(e => console.log("الصوت محتاج تفاعل من المستخدم الأول أو الاسم غلط"));
+// ==========================================
+// 5. التشغيل النهائي والترتيب المنطقي (النسخة المعتمدة)
+// ==========================================
+
+// تعريف الصوت كمتغير عام في بداية القسم
+const sallaAudio = new Audio('salla.mp3');
+
+window.addEventListener('DOMContentLoaded', () => {
+    updateClock();
+    setInterval(updateClock, 1000);
+    renderTasks();
+
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("./sw.js").catch(err => console.log(err));
+    }
+
+    // 1. نبدأ بفحص الاسم أولاً
+    checkUsername();
+
+    // 2. تفعيل مستمع الصوت لأول لمسة
+    enableAudioOnFirstTouch();
+});
+
+// دالة الصوت لكسر حماية المتصفح
+function enableAudioOnFirstTouch() {
+    const playAudio = () => {
+        // فحص: لو الاسم موجود أصلاً (يعني مفيش Alert اسم هتظهر)
+        const name = localStorage.getItem("userName");
+        const isRandom = localStorage.getItem("isRandomName") === "true";
+        const reloadCount = parseInt(localStorage.getItem("reloadCount") || "0");
+        const APP_VERSION = "v4.2";
+        const savedVersion = localStorage.getItem("appVersion");
+
+        // شرط إن الـ Alert بتاعة الاسم مش هتظهر
+        if (name && savedVersion === APP_VERSION && !(isRandom && reloadCount >= defaultNames.length)) {
+            sallaAudio.play().catch(e => {});
+        } else {
+            // لو فيه Alert اسم، بس بنفتح القناة الصوتية
+            sallaAudio.play().then(() => {
+                sallaAudio.pause();
+                sallaAudio.currentTime = 0;
+            }).catch(e => {});
+        }
+        
+        document.removeEventListener('click', playAudio);
+        document.removeEventListener('touchstart', playAudio);
+    };
+    document.addEventListener('click', playAudio);
+    document.addEventListener('touchstart', playAudio);
+}
+
+// دالة الصلاة على النبي (بتشتغل بعد ما نتأكد من الاسم)
+function showPropheticGreeting(name, playImmediately = false) {
+    const username = name || localStorage.getItem("userName") || "يا بطل";
+    
+    // لو playImmediately بـ true، الصوت يشتغل مع أول لمسة فوراً
+    if (playImmediately) {
+        sallaAudio.play().catch(e => {});
+    }
+
+    setTimeout(() => {
+        Swal.fire({
+            title: `<span style="color: #2D3748;">صَلِّ عَلَى رَسُولِ اللهِ ﷺ</span>`,
+            html: `<p style="font-size: 1.1rem;">يومك مبارك يا ${username} 🌟</p>`,
+            confirmButtonText: 'عليه أفضل الصلاة والسلام',
+            confirmButtonColor: '#1e3c72',
+            timer: 4000,
+            timerProgressBar: true,
+            allowOutsideClick: true,
+        }).then((result) => {
+            // لو مكنش اشتغل في الأول، يشتغل هنا
+            if (!playImmediately) sallaAudio.play().catch(e => {});
+        });
+    }, 500); 
 }

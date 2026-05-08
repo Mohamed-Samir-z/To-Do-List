@@ -1,3 +1,11 @@
+:root {
+    --primary-color: #1e3c72;
+    --secondary-color: #2a5298;
+    --tertiary-color: #f0f0f0;
+    --quaternary-color: #e0e0e0;
+    --button-color: #4CAF50 ;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -23,7 +31,7 @@ body {
     min-width: 340px;
     margin: 0 auto;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.075);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.160);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -327,4 +335,40 @@ body {
     animation: remove-task 0.5s forwards;
     pointer-events: none;
     /* عشان ملمسهاش وهي بتتمسح */
+}
+.footer-social{
+    width: 50%;
+    height: 50px;
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+.footer-social a{
+    text-decoration: none;
+    color: #3b82f6;
+    font-size: 1.3rem;
+}
+.footer-social a:hover{
+    color: #1e3c72;
+    border: #1e3c72 2px solid;
+    padding: 5px;
+    border-radius: 10px;
+}
+.action-btn {
+    background: #4A90E2;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    transition: 0.3s;
+    margin: 5px;
+}
+
+.action-btn:hover {
+    background: #357ABD;
+    transform: scale(1.05);
 }
