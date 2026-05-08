@@ -26,6 +26,15 @@ const friendlyMessages = [
 
 let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 
+// 2. دالة الساعة (مفصلة لضمان العمل)
+function updateClock() {
+    const now = new Date();
+    const dateElem = document.getElementById("live-date");
+    const timeElem = document.getElementById("live-time");
+    if (dateElem) dateElem.innerText = now.toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' });
+    if (timeElem) timeElem.innerText = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+}
+
 // 2. دالة إدارة الاسم (تم دمج النسختين في واحدة سليمة)
 async function checkUsername() {
     const APP_VERSION = "v4.5"; 
@@ -286,6 +295,7 @@ clearButton.addEventListener('click', () => {
     });
 });
 
+let shareButton = document.getElementById('share-button');
 shareButton.addEventListener('click', async () => {
     const name = localStorage.getItem("userName") || "يا بطل";
     
