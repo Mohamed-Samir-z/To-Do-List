@@ -35,6 +35,7 @@ function updateClock() {
     if (timeElem) timeElem.innerText = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
 }
 
+
 // 2. دالة إدارة الاسم (تم دمج النسختين في واحدة سليمة)
 async function checkUsername() {
     const APP_VERSION = "v4.5"; 
@@ -56,7 +57,7 @@ async function checkUsername() {
             title: '<span style="color: #4A90E2;">تحديث جديد وصل! ✨</span>',
             html: '<b>نورّت من جديد! حابب نسجلك بلقب إيه في النسخة الجديدة؟</b>',
             input: 'text',
-            inputPlaceholder: 'اكتب اسمك أو لقبك هنا مثلاً: الباشمهندس محمد...',
+            inputPlaceholder: 'اكتب اسمك أو لقبك هنا انجليزي او عربي...',
             showCancelButton: true,
             cancelButtonText: 'تخطّي مؤقتاً 🏃‍♂️',
             confirmButtonText: 'اعتمِد اللقب 💾',
@@ -131,13 +132,6 @@ function renderWelcomeMsg(name) {
     welcomeElem.innerText = isArabic ? `قائمة مهام ${name}` : `${name}'s To-Do List`;
 }
 
-function updateClock() {
-    const now = new Date();
-    const dateElem = document.getElementById("live-date");
-    const timeElem = document.getElementById("live-time");
-    if (dateElem) dateElem.innerText = now.toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' });
-    if (timeElem) timeElem.innerText = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-}
 
 // 4. إدارة المهام (إصلاح الحذف والتعديل)
 function renderTasks() {
@@ -156,8 +150,70 @@ function renderTasks() {
                 </span>
                 <span class="info-btn">ℹ️</span> 
             </div>
-            <div class="task-description">${task.desc || "اضغط لتعديل الوصف..."}</div>
+            <div class="task-description">
+                <p class="desc-text">${task.desc || "لا يوجد وصف لهذه المهمة..."}</p>
+                <button class="edit-desc-btn">تعديل الوصف ✍️</button>
+            </div>
         `;
+
+        // --- داخل دالة renderTasks وجوه الـ forEach ---
+
+        const infoBtn = li.querySelector('.info-btn');
+        const descDiv = li.querySelector('.task-description');
+        const editDescBtn = li.querySelector('.edit-desc-btn');
+
+        infoBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+
+            // 1. لو مفيش وصف مكتوب أصلاً للمهمة دي
+            if (!tasks[index].desc || tasks[index].desc.trim() === "") {
+                const { value: newDesc } = await Swal.fire({
+                    title: 'إضافة تفاصيل 📝',
+                    input: 'textarea',
+                    inputPlaceholder: 'اكتب تفاصيل المهمة هنا...',
+                    showCancelButton: true,
+                    confirmButtonText: 'حفظ الوصف ✅',
+                    cancelButtonText: 'إلغاء'
+                });
+
+                if (newDesc && newDesc.trim() !== "") {
+                    tasks[index].desc = newDesc;
+                    saveAndRefresh();
+                    // نفتح التانة بعد الحفظ عشان يشوف اللي كتبه
+                    setTimeout(() => {
+                        const allLis = document.querySelectorAll('#task-list li');
+                        allLis[index].querySelector('.task-description').classList.add('open');
+                    }, 100);
+                }
+            } 
+            // 2. لو فيه وصف موجود، نفتح أو نقفل التانة (Toggle)
+            else {
+                descDiv.classList.toggle('open');
+            }
+        });
+
+        // 3. زرار "تعديل الوصف" اللي جوه التانة (يفضل موجود عشان لو حب يغير الوصف القديم)
+        editDescBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const { value: updatedDesc } = await Swal.fire({
+                title: 'تعديل الوصف ✍️',
+                input: 'textarea',
+                inputValue: tasks[index].desc,
+                showCancelButton: true,
+                confirmButtonText: 'تحديث',
+                cancelButtonText: 'إلغاء'
+            });
+
+            if (updatedDesc !== undefined) {
+                tasks[index].desc = updatedDesc;
+                saveAndRefresh();
+                // نفتح التانة تاني بعد التحديث
+                setTimeout(() => {
+                    const allLis = document.querySelectorAll('#task-list li');
+                    allLis[index].querySelector('.task-description').classList.add('open');
+                }, 100);
+            }
+        });
 
         const taskTextSpan = li.querySelector('.task-text');
         let pressTimer;
@@ -205,6 +261,7 @@ function renderTasks() {
         content.addEventListener('touchend', () => {
             content.style.transition = 'transform 0.3s ease';
             if (currentTranslate > 150) {
+                deleteAudio.currentTime = 0;
                 deleteAudio.play();
                 li.classList.add('removing');
                 content.style.transform = 'translateX(100%)';
@@ -219,35 +276,20 @@ function renderTasks() {
         });
 
         // تشيك بوكس
+// تشيك بوكس وصوت
         li.querySelector('input').addEventListener('change', (e) => {
-            audio.play();
+            audio.currentTime = 0; // يصفر الصوت عشان يشتغل فوراً لو ضغطت كتير
+            audio.play().catch(() => {});
             tasks[index].completed = e.target.checked;
             if (e.target.checked) {
-                const name = localStorage.getItem("userName") || "يا بطل";
+                const uName = localStorage.getItem("userName") || "بطل";
                 Swal.fire({
                     toast: true, position: 'top-end', icon: 'success',
-                    title: friendlyMessages[Math.floor(Math.random() * friendlyMessages.length)](name),
+                    title: friendlyMessages[Math.floor(Math.random() * friendlyMessages.length)](uName),
                     showConfirmButton: false, timer: 3000
                 });
             }
             saveAndRefresh();
-        });
-
-        // الوصف
-        const infoBtn = li.querySelector('.info-btn');
-        const descDiv = li.querySelector('.task-description');
-        infoBtn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            if (!tasks[index].desc) {
-                const { value: text } = await Swal.fire({
-                    title: 'إضافة تفاصيل 📝',
-                    input: 'textarea',
-                    showCancelButton: true
-                });
-                if (text) { tasks[index].desc = text; saveAndRefresh(); }
-            } else {
-                descDiv.classList.toggle('open');
-            }
         });
 
         taskList.appendChild(li);
