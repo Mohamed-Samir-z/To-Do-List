@@ -169,6 +169,12 @@ body {
 
 /* النص في النص */
 .task-text {
+
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+    white-space: normal;
+    text-align: right;
+            /* عشان العربي يبقى مظبوط */
     flex-grow: 1;
     text-align: left;
     margin-right: 15px;
@@ -289,26 +295,49 @@ body {
     border-bottom-right-radius: 8px;
     position: relative;
     z-index: 3;
+    transition: all 0.3s ease-in-out;
     /* عشان تظهر فوق طبقة الحذف */
 }
 
 .task-description.open {
     max-height: 200px;
+    overflow: auto;
     padding: 10px 15px;
     border-top: 1px solid #eee;
+    display: block;
+    transition: all 0.3s ease-in-out;
+}
+
+.desc-text {
+    font-size: 0.9rem;
+    color: #ffd700;
+    margin-bottom: 8px;
+    word-break: break-all;
+    white-space: pre-wrap;
 }
 
 /* زر التعديل الصغير داخل الوصف */
-.edit-desc-icon {
+.edit-desc-btn {
+    position: sticky;
+    left: 5px;
+    bottom: 7px;
     float: left;
     cursor: pointer;
     font-size: 0.8rem;
     color: #1e3c72;
-    background: #f0f0f0;
+    font-weight: bold;
+    background: #ffffff;
     padding: 2px 8px;
-    border-radius: 5px;
+    border-radius: 12px;
     cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid #1e3c72;
 }
+
+.edit-desc-btn:hover {
+    background: #cbd5e1;
+}
+
 #clear-button {
     background-color: #45a049;
 }
