@@ -1,9 +1,6 @@
 :root {
-    --primary-color: #1e3c72;
-    --secondary-color: #2a5298;
-    --tertiary-color: #f0f0f0;
-    --quaternary-color: #e0e0e0;
-    --button-color: #4CAF50 ;
+    --main-color: linear-gradient(135deg, #1e3c72, #2a5298);
+    --buttons-color: #4CAF50 ;
 }
 
 * {
@@ -13,18 +10,282 @@
     font-family: 'Poppins', sans-serif;
 }
 
+/* ألوان الوضع العادي (Light) */
+:root {
+    --bg-color: #fff;
+    --text-color: #000;
+    --card-bg: #ffffff;
+}
+
+/* ألوان الوضع الليلي (Dark) */
+body.dark-theme {
+    --bg-color: #000000be;
+    --text-color: white;
+    --card-bg: #000000;
+}
+
+.task-item,
+.sidebar,
+.modal-content {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+}
+
+/* تنسيق الزرار نفسه */
+.dark-mode-btn {
+    position: fixed;
+    top: 15px;
+    left: 65px;
+    /* جنب زرار الترس */
+    background: var(--card-bg);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    font-size: 20px;
+    z-index: 1001;
+    padding-bottom: 5px;
+}
+
 body {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
     min-height: 100vh;
-    background: #fff;
+    background-color: var(--bg-color);
     padding: 20px;
     overflow-x: hidden;
     overflow-y: auto;
+    color: var(--text-color);
+    transition: 0.3s;
 }
 
+
+
+/* زرار الترس */
+.settings-btn {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    /* عشان يبقى بعيد عن الساعة */
+    z-index: 1001;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--main-color);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    font-size: 20px;
+    padding-bottom: 4px;
+}
+
+/* القائمة الجانبية */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    direction: rtl;
+    /* مخفية برا الشاشة على الشمال */
+    width: 280px;
+    height: 100%;
+    background: var(--bg-color);
+    color: var(--text-color);
+    z-index: 2000;
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.2);
+    transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 20px;
+}
+
+.sidebar.open {
+    left: 0;
+    /* تظهر لما نديها كلاس open */
+}
+
+.upload-btn {
+    background: var(--main-color);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 5px;
+}
+
+.bg-options {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.bg-btn-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    background-size: cover;
+    cursor: pointer;
+}
+
+/* زرار إعادة الشكل */
+.reset-theme-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #4A90E2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+/* زرار مسح كل شيء */
+.reset-all-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #fee2e2;
+    color: #ef4444;
+    border: 1px solid #ef4444;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.reset-all-btn:hover {
+    background-color: #ef4444;
+    color: white;
+}
+
+/* إجبار السويت أليرت يظهر فوق السايد بار */
+.swal2-container {
+    z-index: 3000 !important;
+    /* رقم أكبر من السايد بار (2000) */
+}
+
+/* تنسيق زراير التواصل */
+.footer-social {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.footer-social a {
+    font-size: 24px;
+    color: #4A90E2;
+    transition: 0.3s;
+}
+
+.footer-social a:hover {
+    transform: translateY(-3px);
+    color: #2D3748;
+}
+
+/* دوائر الألوان */
+.color-options {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.color-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.default-color {
+    background: #4A90E2;
+    position: relative;
+}
+
+/* حركة اختيارية: وضع علامة صغيرة تميز اللون الافتراضي */
+.default-color::after {
+    content: "🏠";
+    font-size: 10px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.color-dot.active {
+    border-color: #333;
+}
+.default-color{
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+}
+
+.blue {
+    background: #4A90E2;
+}
+
+.green {
+    background: #48BB78;
+}
+
+.purple {
+    background: #9F7AEA;
+}
+
+.orange {
+    background: #ED8936;
+}
+
+.custom-color-wrapper {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #fff;
+    cursor: pointer;
+}
+
+#custom-color-picker {
+    position: absolute;
+    width: 150%;
+    /* أكبر من الـ wrapper عشان يغطي الحواف */
+    height: 150%;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    background: none;
+    opacity: 0;
+    /* بنخليه شفاف عشان الأيقونة تبان */
+}
+
+.custom-color-icon {
+    font-size: 18px;
+    pointer-events: none;
+    /* عشان الضغط يوصل للـ input اللي تحته */
+}
+
+/* حركة بسيطة لما يختار لون */
+.custom-color-wrapper:hover {
+    border-color: #4A90E2;
+    transform: scale(1.1);
+    transition: 0.2s;
+}
+
+/* تنسيق المحتوى */
 .container {
     width: 95%;
     max-width: 450px;
@@ -41,7 +302,7 @@ body {
 .header-container {
     min-width: 50%;
     padding: 10px 15px;
-    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    background: var(--main-color);
     color: white;
     text-align: center;
     border-bottom-left-radius: 15px;
@@ -116,7 +377,7 @@ body {
 
 #add-button {
     padding: 10px 20px;
-    background-color: #4CAF50;
+    background-color: var(--buttons-color);
     color: #fff;
     border: none;
     border-radius: 5px;
@@ -144,7 +405,7 @@ body {
 
 /* الطبقة البيضاء المتحركة */
 .task-content {
-    background: white;
+    background: var(--card-bg);
     padding: 15px 15px 15px 45px;
     /* مساحة للرقم شمال */
     display: flex;
@@ -152,9 +413,11 @@ body {
     position: relative;
     z-index: 2;
     transition: transform 0.3s ease;
-    border: 1px solid #ccc;
+    border: 1px solid #a7a7a7;
     border-radius: 8px;
     width: 100%;
+    box-shadow: var(--main-color) 0px 3px 17px 2.5px;
+    
 }
 
 /* الرقم شمال خالص */
@@ -164,12 +427,11 @@ body {
     position: absolute;
     left: 15px;
     font-weight: bold;
-    color: #333;
+    color: var(--text-color);
 }
 
 /* النص في النص */
 .task-text {
-
     word-break: keep-all;
     overflow-wrap: anywhere;
     white-space: normal;
@@ -180,7 +442,7 @@ body {
     margin-right: 15px;
     word-break: break-all;
     font-size: 1.1rem;
-    color: #333;
+    color: var(--text-color);
     cursor: pointer;
     transition: color 0.3s ease;
 }
@@ -192,9 +454,11 @@ body {
 }
 
 .swipe-bg {
+    justify-content: flex-start;
+    align-items: center;
     position: absolute;
     left: 0;
-    top: 0;
+    bottom: 0px;
     width: 100%;
     height: 100%;
     background: #E53E3E;
@@ -209,7 +473,7 @@ body {
 
 #clear-button {
     padding: 10px 20px;
-    background-color: #4CAF50;
+    background-color: var(--buttons-color);
     color: #fff;
     border: none;
     border-radius: 7px;
@@ -239,14 +503,14 @@ body {
     left: 0;
     height: 25px;
     width: 25px;
-    box-shadow: inset #00000094 -1.5px 1.5px 6px;
+    box-shadow: inset var(--text-color) -1.5px 1.5px 6px;
     border: 2.5px solid #0000002d;
     transition: .2s linear;
 }
 
 .checkbox-btn input:checked~.checkmark {
     background-color: transparent;
-    box-shadow: inset #ffffff -1px -1px 1px;
+    box-shadow: inset var(--bg-color) -1px -1px 1px;
 }
 
 .checkmark:after {
@@ -278,6 +542,7 @@ body {
     padding: 8px ;
     cursor: pointer;
     margin-left: 10px;
+    color: var(--main-color);
 }
 
 /* حاوية الوصف */
@@ -285,7 +550,7 @@ body {
     max-height: 0;
     overflow: hidden;
     transition: all 0.3s ease-in-out;
-    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    background: var(--main-color);
     /* خليناها أبيض عشان متتداخلش مع الأحمر */
     font-size: 0.9rem;
     color: #ffd700;
@@ -338,9 +603,6 @@ body {
     background: #cbd5e1;
 }
 
-#clear-button {
-    background-color: #45a049;
-}
 
 /* أنيميشن الحذف: تصغير واختفاء */
 @keyframes remove-task {
@@ -365,28 +627,17 @@ body {
     pointer-events: none;
     /* عشان ملمسهاش وهي بتتمسح */
 }
-.footer-social{
-    width: 50%;
-    height: 50px;
-    margin-top: 15px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
+
+hr {
+    border: none;
+    border-top: 1px solid #00000057;
+    margin: 20px 0;
+    box-shadow: var(--main-color) 0px 3px 17px 2.5px;
 }
-.footer-social a{
-    text-decoration: none;
-    color: #3b82f6;
-    font-size: 1.3rem;
-}
-.footer-social a:hover{
-    color: #1e3c72;
-    border: #1e3c72 2px solid;
-    padding: 5px;
-    border-radius: 10px;
-}
+
+/* زر المشاركة */
 .action-btn {
-    background: #4A90E2;
+    background: var(--main-color);
     color: white;
     border: none;
     padding: 10px 15px;
@@ -400,4 +651,14 @@ body {
 .action-btn:hover {
     background: #357ABD;
     transform: scale(1.05);
+}
+
+.setting-item {
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+
 }

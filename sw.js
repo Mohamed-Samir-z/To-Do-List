@@ -1,4 +1,4 @@
-const cacheName = 'todo-v4.5'; // غير دي لـ 4.2 دلوقتي عشان التعديل يلقط
+const cacheName = 'todo-v4.7'; // غير دي لـ 4.2 دلوقتي عشان التعديل يلقط
 const assets = [
     './',
     './index.html',
@@ -8,7 +8,16 @@ const assets = [
     './Click.wav',
     './icon.png',
     './switch.wav',
-    './Salla.mp3'
+    './Salla.mp3',
+    './all.min.css',
+    './webfonts/fa-solid-900.woff2',
+    './webfonts/fa-brands-400.woff2',
+    './webfonts/fa-regular-400.woff2',
+    './bg-btn-img1.jpg',
+    './bg-btn-img2.jpg',
+    './bg-btn-img3.jpg',
+    './bg-btn-img4.jpg',
+    './bg-btn-img5.png'
 ];
 
 self.addEventListener('install', e => {

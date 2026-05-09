@@ -24,6 +24,7 @@ const friendlyMessages = [
     (name) => `ممتاز يا ${name}! كدة إنت ماشي صح.. بس خليك فاكر إن كل مهمة بتقربك من ربنا. 🌟`
 ];
 
+
 let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 
 // 2. دالة الساعة (مفصلة لضمان العمل)
@@ -38,7 +39,7 @@ function updateClock() {
 
 // 2. دالة إدارة الاسم (تم دمج النسختين في واحدة سليمة)
 async function checkUsername() {
-    const APP_VERSION = "v4.5"; 
+    const APP_VERSION = "v4.7"; 
     let savedVersion = localStorage.getItem("appVersion");
     let name = localStorage.getItem("userName");
     let isRandom = localStorage.getItem("isRandomName") === "true";
@@ -67,7 +68,7 @@ async function checkUsername() {
             preConfirm: (value) => {
                 if (!value && clickCount === 0) {
                     clickCount++;
-                    Swal.showValidationMessage('مش عاوز تعرفنى اسمك ، عشان التحديث يكمل 😉');
+                    Swal.showValidationMessage('مش عاوز تعرفنى اسمك ، عشان التحديث يتكمل 😉');
                     return false;
                 }
                 return value;
@@ -104,7 +105,7 @@ async function editName() {
         title: '<span style="color: #2D3748;">تغيير اللقب الغالي ✍️</span>',
         input: 'text',
         inputValue: currentName,
-        inputLabel: 'حبيت ناديك بإيه المرة دي؟',
+        inputLabel: 'حبيت نناديك بإيه المرة دي؟',
         inputPlaceholder: 'مثلاً: الباشمهندس محمد...',
         showCancelButton: true,
         confirmButtonText: 'تحديث اللقب ✨',
@@ -152,7 +153,7 @@ function renderTasks() {
             </div>
             <div class="task-description">
                 <p class="desc-text">${task.desc || "لا يوجد وصف لهذه المهمة..."}</p>
-                <button class="edit-desc-btn">تعديل الوصف ✍️</button>
+                <button class="edit-desc-btn">Edit✍️</button>
             </div>
         `;
 
@@ -173,7 +174,7 @@ function renderTasks() {
                     inputPlaceholder: 'اكتب تفاصيل المهمة هنا...',
                     showCancelButton: true,
                     confirmButtonText: 'حفظ الوصف ✅',
-                    cancelButtonText: 'إلغاء'
+                    cancelButtonText: 'إلغاء 🚫',
                 });
 
                 if (newDesc && newDesc.trim() !== "") {
@@ -200,8 +201,8 @@ function renderTasks() {
                 input: 'textarea',
                 inputValue: tasks[index].desc,
                 showCancelButton: true,
-                confirmButtonText: 'تحديث',
-                cancelButtonText: 'إلغاء'
+                confirmButtonText: 'تحديث ✅',
+                cancelButtonText: 'إلغاء 🚫'
             });
 
             if (updatedDesc !== undefined) {
@@ -220,20 +221,44 @@ function renderTasks() {
 
         // تعديل المهمة باللمس المطول
         taskTextSpan.addEventListener('touchstart', (e) => {
-            pressTimer = setTimeout(async () => {
-                const { value: newTaskText } = await Swal.fire({
+            pressTimer = setTimeout(() => { // شيلنا async هنا لأننا هنستخدم .then
+                Swal.fire({
                     title: 'تعديل المهمة ✍️',
                     input: 'text',
                     inputValue: tasks[index].text,
                     showCancelButton: true,
                     confirmButtonText: 'تحديث',
-                    cancelButtonText: 'إلغاء'
+                    cancelButtonText: 'إلغاء',
+                    inputPlaceholder: 'اكتب المهمة هنا...',
+                    inputValidator: (value) => {
+                        if (!value || value.trim() === "") {
+                            return 'ماينفعش تسيب المهمة فاضية! ⚠️';
+                        }
+                    }
+                }).then((result) => {
+                    // هنا بنشيك هل داس تحديث وهل فيه قيمة فعلاً
+                    if (result.isConfirmed && result.value) {
+                        tasks[index].text = result.value; // بناخد القيمة من result.value
+                        saveAndRefresh();
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'تم التحديث!',
+                            timer: 1000,
+                            showConfirmButton: false,
+                            timerProgressBar: true
+                        });
+                    }
                 });
-                if (newTaskText) {
-                    tasks[index].text = newTaskText;
-                    saveAndRefresh();
-                }
             }, 800);
+        });
+
+        // لازم تضيف دي عشان لو رفع إيده قبل الـ 800ms التايمر يتلغي وما يفتحش التعديل
+        taskTextSpan.addEventListener('touchend', () => {
+            clearTimeout(pressTimer);
+        });
+        taskTextSpan.addEventListener('touchmove', () => {
+            clearTimeout(pressTimer);
         });
 
         taskTextSpan.addEventListener('touchend', () => clearTimeout(pressTimer));
@@ -266,8 +291,7 @@ function renderTasks() {
                 li.classList.add('removing');
                 content.style.transform = 'translateX(100%)';
                 setTimeout(() => {
-                    tasks.splice(index, 1);
-                    saveAndRefresh();
+                    deleteTask(index);
                 }, 400);
             } else {
                 content.style.transform = 'translateX(0)';
@@ -286,7 +310,7 @@ function renderTasks() {
                 Swal.fire({
                     toast: true, position: 'top-end', icon: 'success',
                     title: friendlyMessages[Math.floor(Math.random() * friendlyMessages.length)](uName),
-                    showConfirmButton: false, timer: 3000
+                    showConfirmButton: false, timer: 2700, timerProgressBar: true
                 });
             }
             saveAndRefresh();
@@ -305,11 +329,16 @@ function saveAndRefresh() {
 addButton.addEventListener('click', () => {
     const val = taskInput.value.trim();
     if (val === '') {
-        Swal.fire({ title: 'فين المهمة؟ 🧐', icon: 'warning', confirmButtonText: 'حاضر ✅' });
+        Swal.fire({ title: 'فين المهمة؟ 🧐',
+            text: 'متشتغلنيش بقا وصل على النبى وابدأ مهام وانجازات! 😉', icon: 'warning', confirmButtonText: 'حاضر ✅' });
         return;
     }
     if (tasks.some(t => t.text === val)) {
-        Swal.fire({ title: 'موجودة قبل كدة! 🧐', icon: 'info' });
+        Swal.fire({
+            title: 'موجودة قبل كدة! 🧐',
+            icon: 'info',
+            text: 'ركز كدا صل على النبى وافتح عيونك يجميل! 😉', 
+            confirmButtonText: 'حاضر ✅' });
         return;
     }
     tasks.push({ text: val, completed: false });
@@ -323,19 +352,82 @@ taskInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addButton.
 clearButton.addEventListener('click', () => {
     if (tasks.length === 0) return;
     Swal.fire({
-        title: 'هل أنت متأكد؟ ⚠️',
-        text: "هيمسح كل المهام!",
+        title: ' انت متأكد؟ ⚠️',
+        text: "هيمسحلك كل المهام!",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: 'امسح الكل! 🔥'
+        confirmButtonText: 'امسح الكل! 🔥',
+        cancelButtonText: 'تراجعت خليهم!🙅‍♂️',
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
     }).then((result) => {
         if (result.isConfirmed) {
             deleteAudio.play();
-            tasks = [];
-            saveAndRefresh();
+            deleteAllTasks();
         }
     });
 });
+
+let tasksBackup = []; // مخزن مؤقت للمهام المحذوفة
+
+function deleteAllTasks() {
+    // 1. ناخد نسخة احتياطية من المهام الحالية قبل المسح
+    tasksBackup = [...tasks]; 
+
+    // 2. نمسح المهام
+    tasks = [];
+    saveAndRefresh();
+
+    // 3. نظهر التنبيه مع زرار التراجع
+    Swal.fire({
+        text: "تم حذف جميع المهام",
+        icon: 'info',
+        toast: true,
+        position: 'bottom-start',
+        showConfirmButton: true,
+        confirmButtonText: 'تراجع ↩️',
+        timer: 5000, // الـ Toast هيفضل 5 ثواني عشان يلحق يدوس
+        timerProgressBar: true,
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // لو داس تراجع، نرجع النسخة الاحتياطية
+            tasks = [...tasksBackup];
+            saveAndRefresh();
+            
+            Swal.fire({
+                toast: true,
+                position: 'bottom-start',
+                title: 'تم استعادة المهام',
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        }
+    });
+}
+
+function deleteTask(index) {
+    tasksBackup = [...tasks]; // نسخة احتياطية
+
+    tasks.splice(index, 1);
+    saveAndRefresh();
+
+    Swal.fire({
+        text: "تم حذف المهمة",
+        icon: 'warning',
+        toast: true,
+        position: 'bottom-start',
+        showConfirmButton: true,
+        confirmButtonText: 'تراجع',
+        timer: 4000,
+        timerProgressBar: true,
+    }).then((result) => {
+        if (result.isConfirmed) {
+            tasks = [...tasksBackup];
+            saveAndRefresh();
+        }
+    });
+}
 
 let shareButton = document.getElementById('share-button');
 shareButton.addEventListener('click', async () => {
@@ -416,5 +508,233 @@ window.addEventListener('DOMContentLoaded', () => {
     if ("serviceWorker" in navigator) {
         navigator.workerContainer = navigator.serviceWorker.register("./sw.js");
     }
+
+    // استرجاع الألوان والثيمات
+    const savedColor = localStorage.getItem('themeColor');
+    const savedBtnColor = localStorage.getItem('buttonsThemeColor');
+    const savedBg = localStorage.getItem('customBg');
+    const savedMode = localStorage.getItem('themeMode');
+
+    if (savedColor) applyThemeColor(savedColor);
+    if (savedBtnColor) applyButtonsColor(savedBtnColor);
+    if (savedBg) changeBackground(savedBg); // استخدم الدالة الموحدة
+    if (savedMode === 'dark') {
+        document.body.classList.add('dark-theme');
+        if(modeIcon) modeIcon.textContent = '☀️';
+    }
 });
 
+
+
+const sidebar = document.getElementById('settings-sidebar');
+const openBtn = document.getElementById('settings-toggle');
+const closeBtn = document.getElementById('close-sidebar');
+
+// فتح القائمة
+openBtn.addEventListener('click', () => {
+    sidebar.classList.add('open');
+});
+
+// قفل القائمة
+closeBtn.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+});
+
+// قفل القائمة لو ضغطت براها
+document.addEventListener('click', (e) => {
+    if (!sidebar.contains(e.target) && !openBtn.contains(e.target)) {
+        sidebar.classList.remove('open');
+    }
+});
+
+
+
+// --- 1. منطق تغيير الألوان ---
+const colorDots = document.querySelectorAll('.color-dot');
+
+colorDots.forEach(dot => {
+    dot.addEventListener('click', () => {
+        const selectedColor = dot.getAttribute('data-color');
+        applyThemeColor(selectedColor);
+        
+        // حفظ الاختيار
+        localStorage.setItem('themeColor', selectedColor);
+        
+        // تحديث العلامة النشطة
+        colorDots.forEach(d => d.classList.remove('active'));
+        dot.classList.add('active');
+    });
+    
+});
+
+const customColorPicker = document.getElementById('custom-color-picker');
+
+// استماع لتغيير اللون من الـ Picker
+customColorPicker.addEventListener('input', (e) => {
+    const selectedColor = e.target.value;
+    
+    // تطبيق اللون فوراً
+    applyThemeColor(selectedColor);
+    
+    // حفظ اللون في الذاكرة
+    localStorage.setItem('themeColor', selectedColor);
+    
+    // إزالة علامة الـ active من الدوائر الجاهزة
+    document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+});
+
+// ملاحظة: الـ 'input' event بيغير اللون وأنت بتحرك إيدك، 
+// لو عايزه يتغير بعد ما يسيب الماوس بس، استخدم 'change' بدلاً من 'input'.
+
+function applyThemeColor(color) {
+    // تغيير لون الهيدر والزراير والـ Checkbox
+    document.documentElement.style.setProperty('--main-color', color);
+    // لو إنت مستخدم متغيرات CSS (CSS Variables) ده هيكون أسهل بكتير
+    const header = document.querySelector('header'); // أو الكلاس بتاع الهيدر عندك
+    if(header) header.style.backgroundColor = color;
+    
+    document.querySelectorAll('.settings-btn, .add-button, .swal2-confirm').forEach(el => {
+        el.style.backgroundColor = color;
+    });
+}
+
+const btnColorPicker = document.getElementById('btn-color-picker');
+
+// 1. مراقبة تغيير لون الأزرار
+btnColorPicker.addEventListener('input', (e) => {
+    const selectedColor = e.target.value;
+    applyButtonsColor(selectedColor);
+    localStorage.setItem('buttonsThemeColor', selectedColor);
+});
+
+// 2. دالة تطبيق لون الأزرار فقط
+function applyButtonsColor(color) {
+    document.documentElement.style.setProperty('--buttons-color', color);
+}
+
+// // 3. عند تحميل الصفحة، استرجع اللونين (الهيدر والأزرار)
+// window.addEventListener('load', () => {
+//     const savedBtnColor = localStorage.getItem('buttonsThemeColor');
+
+//     if (savedBtnColor) {
+//         applyButtonsColor(savedBtnColor);
+//     }
+// });
+
+// --- 2. منطق الخلفية من المعرض ---
+
+// دالة تغيير الخلفية وتخزينها
+function changeBackground(bgValue) {
+    document.body.style.backgroundImage = bgValue;
+    document.body.style.backgroundSize = "cover";
+    document.body.style.backgroundAttachment = "fixed";
+    document.body.style.backgroundPosition = "center";
+    
+    // حفظ في الـ localStorage
+    localStorage.setItem('customBg', bgValue);
+}
+
+// 1. ربط زراير الصور الجاهزة (الـ 4 خلفيات)
+const bgBtns = document.querySelectorAll('.bg-btn-img, .bg-btn');
+bgBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const bg = btn.getAttribute('data-bg');
+        if (bg === "none") {
+            document.body.style.backgroundImage = "none";
+            localStorage.removeItem('customBg');
+        } else {
+            changeBackground(bg);
+        }
+    });
+});
+
+// 2. تعديل كود الرفع من الجهاز (عشان يستخدم نفس الدالة)
+const bgUpload = document.getElementById('bg-upload');
+bgUpload.addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const base64Image = `url(${e.target.result})`;
+            changeBackground(base64Image);
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// // --- 3. استرجاع الإعدادات عند تحميل الصفحة ---
+// window.addEventListener('load', () => {
+//     const savedColor = localStorage.getItem('themeColor');
+//     const savedBg = localStorage.getItem('customBg');
+
+//     if (savedColor) applyThemeColor(savedColor);
+//     if (savedBg) {
+//         document.body.style.backgroundImage = `url(${savedBg})`;
+//         document.body.style.backgroundSize = "cover";
+//         document.body.style.backgroundAttachment = "fixed";
+//     }
+// });
+
+// 1. إعادة ضبط الشكل (ألوان وخلفية فقط)
+document.getElementById('reset-theme').addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    Swal.fire({
+        title: 'إعادة شكل التطبيق؟',
+        text: "سيرجع اللون والخلفية للوضع الأصلي، لكن اسمك ومهامك ستبقى كما هي.",
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: 'نعم، أعد الشكل ✨',
+        cancelButtonText: 'إلغاء'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            localStorage.removeItem('themeColor');
+            localStorage.removeItem('customBg');
+            location.reload(); 
+        }
+    });
+});
+
+// 2. مسح كافة البيانات (الاسم، المهام، الشكل)
+document.getElementById('reset-all').addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    Swal.fire({
+        title: 'مسح شامل للبيانات؟',
+        text: "سيتم حذف الاسم، المهام، وكل الإعدادات. لن يمكنك التراجع عن هذا!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        confirmButtonText: 'نعم، امسح الكل ⚠️',
+        cancelButtonText: 'إلغاء'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            localStorage.clear();
+            location.reload();
+        }
+    });
+});
+
+const darkModeToggle = document.getElementById('dark-mode-toggle');
+const modeIcon = document.getElementById('mode-icon');
+
+// وظيفة التبديل
+darkModeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-theme');
+    
+    // تغيير الأيقونة وحفظ الحالة
+    if (document.body.classList.contains('dark-theme')) {
+        modeIcon.textContent = '☀️'; // شمس للرجوع للوضع الفاتح
+        localStorage.setItem('themeMode', 'dark');
+    } else {
+        modeIcon.textContent = '🌙'; // قمر للذهاب للوضع الليلي
+        localStorage.setItem('themeMode', 'light');
+    }
+});
+
+// // استرجاع الوضع عند تحميل الصفحة
+// window.addEventListener('load', () => {
+//     const savedMode = localStorage.getItem('themeMode');
+//     if (savedMode === 'dark') {
+//         document.body.classList.add('dark-theme');
+//         modeIcon.textContent = '☀️';
+//     }
+// });

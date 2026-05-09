@@ -7,10 +7,98 @@
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
     <link rel="shortcut icon" href="icon.png" type="image/x-icon">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="./all.min.css">
     <title>To-Do List</title>
   </head>
   <body>
+    <!-- قسم الإعدادات -->
+    <button id="settings-toggle" class="settings-btn">⚙️</button>
+    
+    <button id="dark-mode-toggle" class="dark-mode-btn">
+      <span id="mode-icon">🌙</span>
+    </button>
+    
+    <div id="settings-sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <h3>الإعدادات 🛠️</h3>
+        <button id="close-sidebar">✖️</button>
+      </div>
+    
+      <div class="sidebar-content">
+        <div class="setting-item">
+          <h4>ثيم التطبيق 🎨</h4>
+          <div class="color-options">
+            <span class="color-dot default-color active" data-color="linear-gradient(135deg, #1e3c72, #2a5298)" title="الافتراضي"></span>
+            <span class="color-dot blue active" data-color="#4A90E2"></span>
+            <span class="color-dot green" data-color="#48BB78"></span>
+            <span class="color-dot purple" data-color="#9F7AEA"></span>
+            <span class="color-dot orange" data-color="#ED8936"></span>
+            <div class="custom-color-wrapper">
+              <input type="color" id="custom-color-picker" title="اختر لونك المفضل">
+              <span class="custom-color-icon">🎨</span>
+            </div>
+          </div>
+        </div>
+    
+        <hr>
+
+        <div class="setting-item">
+          <h4>لون الأزرار التفاعلية 🔘</h4>
+          <div class="custom-color-wrapper">
+            <input type="color" id="btn-color-picker" title="اختر لون الأزرار">
+            <span class="custom-color-icon">🖱️</span>
+          </div>
+        </div>
+    
+        <hr>
+        <div class="setting-item">
+          <h4>خلفية التطبيق 🖼️</h4>
+          <div class="bg-options">
+            <button class="bg-btn" data-bg="none">افتراضي</button>
+            <button class="bg-btn-img" data-bg="url('./bg-btn-img1.jpg')" style="background-image: url('./bg-btn-img1.jpg'); background-size: cover; background-position: center center;"></button>
+            <button class="bg-btn-img" data-bg="url('./bg-btn-img3.jpg')"; style="background-image: url('./bg-btn-img3.jpg'); background-size: cover; background-position: center center;"></button>
+            <button class="bg-btn-img" data-bg="url('./bg-btn-img2.jpg')"; style="background-image: url('./bg-btn-img2.jpg'); background-size: cover; background-position: center center;"></button>
+            <button class="bg-btn-img" data-bg="url('./bg-btn-img4.jpg')"; style="background-image: url('./bg-btn-img4.jpg'); background-size: cover; background-position: center center;"></button>
+            <button class="bg-btn-img" data-bg="url('./bg-btn-img5.png')"; style="background-image: url('./bg-btn-img5.png'); background-size: cover; background-position: center center;"></button>
+          </div>
+          <p style="font-size: 12px; margin-top:10px;">أو اختر من جهازك:</p>
+          <input type="file" id="bg-upload" accept="image/*" style="display: none;">
+          <button onclick="document.getElementById('bg-upload').click()" class="upload-btn">رفع صورة 📤</button>
+        </div>
+
+        <hr>
+        <div class="setting-item">
+          <h4>إعادة الضبط ⚙️</h4>
+          <button id="reset-theme" class="reset-theme-btn">
+            إعادة الشكل الافتراضي ✨
+          </button>
+        
+          <button id="reset-all" class="reset-all-btn">
+            مسح كل بيانات التطبيق ⚠️
+          </button>
+        </div>
+
+        <hr>
+    
+        <div class="setting-item">
+          <h4>تواصل معي 🤝</h4>
+          <div class="footer-social">
+            <a href="https://wa.me/201007569287" target="_blank"><i class="fa-brands fa-whatsapp"></i></a>
+            <a href="https://t.me/Mohamed_5amir" target="_blank"><i class="fa-brands fa-telegram"></i></a>
+            <a href="https://www.linkedin.com/in/eng-mohamed-samir1/" target="_blank"><i
+              class="fa-brands fa-linkedin"></i></a>
+              <a href="https://github.com/Mohamed-Samir-Z" target="_blank"><i class="fa-brands fa-github"></i></a>
+              <a href="https://www.facebook.com/mohamed.samir.443108/" target="_blank"><i
+                class="fa-brands fa-facebook"></i></a>
+              </div>
+              <button id="share-button" class="action-btn">
+                مشاركة التطبيق 🔗
+              </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
     <div class="container">
       <div class="header-container">
         <div class="user-content">
@@ -29,16 +117,13 @@
       </ul>
       <button id="clear-button">Clear All</button>
     </div>
-    <div class="footer-social">
+    <!-- <div class="footer-social">
       <a href="https://wa.me/201007569287" target="_blank"><i class="fa-brands fa-whatsapp"></i></a>
       <a href="https://t.me/Mohamed_5amir" target="_blank"><i class="fa-brands fa-telegram"></i></a>
       <a href="https://www.linkedin.com/in/eng-mohamed-samir1/" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
       <a href="https://github.com/Mohamed-Samir-Z" target="_blank"><i class="fa-brands fa-github"></i></a>
       <a href="https://www.facebook.com/mohamed.samir.443108/" target="_blank"><i class="fa-brands fa-facebook"></i></a>
-    </div>
-    <button id="share-button" class="action-btn">
-      مشاركة التطبيق 🔗
-    </button>
+    </div> -->
     <script src="sweetalert2.all.min.js"></script>
     <script src="script.js"></script>
   </body>
