@@ -67,7 +67,7 @@ async function checkUsername() {
             preConfirm: (value) => {
                 if (!value && clickCount === 0) {
                     clickCount++;
-                    Swal.showValidationMessage('عشان التحديث يكمل، يا ريت تكتب اسمك 😉');
+                    Swal.showValidationMessage('مش عاوز تعرفنى اسمك ، عشان التحديث يكمل 😉');
                     return false;
                 }
                 return value;
