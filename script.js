@@ -39,7 +39,7 @@ function updateClock() {
 
 // 2. دالة إدارة الاسم (تم دمج النسختين في واحدة سليمة)
 async function checkUsername() {
-    const APP_VERSION = "v4.7"; 
+    const APP_VERSION = "v4.8"; 
     let savedVersion = localStorage.getItem("appVersion");
     let name = localStorage.getItem("userName");
     let isRandom = localStorage.getItem("isRandomName") === "true";
@@ -402,6 +402,8 @@ function deleteAllTasks() {
                 showConfirmButton: false,
                 timer: 1500
             });
+            audio.currentTime = 0;
+            audio.play().catch(() => {});
         }
     });
 }
@@ -738,3 +740,36 @@ darkModeToggle.addEventListener('click', () => {
 //         modeIcon.textContent = '☀️';
 //     }
 // });
+
+// كود الصياعة البرمجية للروابط وأنت أوفلاين
+document.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', function(e) {
+        // نتحقق لو الرابط خارجي (مش مجرد زرار في التطبيق) والجهاز ملوش نت
+        if (this.href.includes('http') && !navigator.onLine) {
+            e.preventDefault(); // نوقف الرابط مخليهوش يفتح الشاشة البنفسجي
+            
+            Swal.fire({
+                title: '<span style="color: #4A90E2;">بذمتك يا شيخ! 🤨</span>',
+                html: `
+                    <div style="font-weight: bold; margin-bottom: 10px;">
+                        يعني عايز تفتح الرابط وأنت قافل النت؟ <br>
+                        سِحْر هو يعنى يا بطل؟ ✨😂
+                    </div>
+                    <p style="font-size: 0.9rem; color: #718096;">
+                        افتح النت الأول وتعال دوس تاني، مستنيينك! 🏃‍♂️🌐
+                    </p>
+                `,
+                icon: 'question', // شكل علامة الاستفهام بيبقى لايق مع "بذمتك"
+                confirmButtonText: 'خلاص يا عم حقك عليا 🫡',
+                confirmButtonColor: '#4A90E2',
+                background: '#fff',
+                backdrop: `
+                    rgba(0,0,123,0.4)
+                    url("./funny.webp")
+                    left top
+                    no-repeat
+                ` // ضفتلك جيف خفيف كدة لو تحب يظهر في الخلفية (اختياري)
+            });
+        }
+    });
+});
