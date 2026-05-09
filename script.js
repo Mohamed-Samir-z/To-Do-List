@@ -41,7 +41,7 @@ function updateClock() {
 
 // 2. دالة إدارة الاسم (تم دمج النسختين في واحدة سليمة)
 async function checkUsername() {
-    const APP_VERSION = "v5.0"; 
+    const APP_VERSION = "v5.1"; 
     let savedVersion = localStorage.getItem("appVersion");
     let name = localStorage.getItem("userName");
     let isRandom = localStorage.getItem("isRandomName") === "true";
@@ -473,7 +473,7 @@ shareButton.addEventListener('click', async () => {
     const name = localStorage.getItem("userName") || "يا بطل";
     
     // 1. رابط الموقع الأساسي (غير الرابط ده برابط مشروعك الحقيقي)
-    const siteUrl = "https://mohamed-samir.github.io/todo-list/"; 
+    const siteUrl = "https://mohamed-samir-z.github.io/To-Do-List/"; 
     
     // 2. رابط التحميل المباشر للـ APK (بيكون هو رابط الموقع + اسم الملف)
     const apkDirectLink = siteUrl + "todo-app.apk";

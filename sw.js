@@ -1,4 +1,4 @@
-const cacheName = 'todo-v5.0'; // غير دي لـ 4.2 دلوقتي عشان التعديل يلقط
+const cacheName = 'todo-v5.1'; // غير دي لـ 4.2 دلوقتي عشان التعديل يلقط
 const assets = [
     './',
     './index.html',
