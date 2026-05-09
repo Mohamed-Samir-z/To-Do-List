@@ -1,4 +1,4 @@
-const cacheName = 'todo-v4.9'; // غير دي لـ 4.2 دلوقتي عشان التعديل يلقط
+const cacheName = 'todo-v5.0'; // غير دي لـ 4.2 دلوقتي عشان التعديل يلقط
 const assets = [
     './',
     './index.html',
@@ -17,7 +17,8 @@ const assets = [
     './bg-btn-img2.jpg',
     './bg-btn-img3.jpg',
     './bg-btn-img4.jpg',
-    './bg-btn-img5.png'
+    './bg-btn-img5.png',
+    './funny.webp',
 ];
 
 self.addEventListener('install', e => {

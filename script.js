@@ -14,6 +14,8 @@ const deleteAudio = new Audio("switch.wav");
 const sallaAudio = new Audio('./Salla.mp3');
 sallaAudio.preload = "auto";
 
+let isInitialLoad = true;
+
 const friendlyMessages = [
     (name) => `عاش يا ${name}! إنجاز عالمي والله.. بس قولي صليت على النبي النهاردة؟ ﷺ`,
     (name) => `الله ينور يا ${name}! كدة إنت في السليم.. كمل يا بطل ربنا يوفقك. 🚀`,
@@ -39,7 +41,7 @@ function updateClock() {
 
 // 2. دالة إدارة الاسم (تم دمج النسختين في واحدة سليمة)
 async function checkUsername() {
-    const APP_VERSION = "v4.9"; 
+    const APP_VERSION = "v5.0"; 
     let savedVersion = localStorage.getItem("appVersion");
     let name = localStorage.getItem("userName");
     let isRandom = localStorage.getItem("isRandomName") === "true";
@@ -95,6 +97,7 @@ async function checkUsername() {
     const finalName = localStorage.getItem("userName");
     const isActuallyRandom = localStorage.getItem("isRandomName") === "true";
     renderWelcomeMsg(isActuallyRandom ? `ال${finalName}` : finalName);
+    welcomeUser(isActuallyRandom ? `ال${finalName}` : finalName);
     showPropheticGreeting(finalName);
 }
 
@@ -130,9 +133,41 @@ function renderWelcomeMsg(name) {
     const welcomeElem = document.getElementById("welcome-text");
     if (!welcomeElem) return;
     const isArabic = /[\u0600-\u06FF]/.test(name);
-    welcomeElem.innerText = isArabic ? `قائمة مهام ${name}` : `${name}'s To-Do List`;
+    const newTitle = isArabic ? `قائمة مهام ${name}` : `${name}'s To-Do List`;
+
+    if (typeof isInitialLoad !== 'undefined' && !isInitialLoad) {
+        welcomeUser(name); // استدعاء الترحيب الشيك اللي عملناه
+    }
+
+    welcomeElem.innerText = newTitle;
+    isInitialLoad = false;
 }
 
+
+function welcomeUser(userName) {
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end', // فوق على اليمين زي ما طلبت
+        showConfirmButton: false,
+        timer: 4000, // يختفي بعد 4 ثواني
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    });
+
+    Toast.fire({
+        icon: 'success',
+        title: `نورت يا  ${userName} ❤️`,
+        html: '<span style="font-size: 0.9rem;"> أهلا بك فى نسختك الخاصة 🚀</span>',
+        background: '#fff',
+        color: '#2d3748',
+        iconColor: '#48BB78',
+    });
+    audio.currentTime = 0;
+    audio.play().catch(() => {});
+}
 
 // 4. إدارة المهام (إصلاح الحذف والتعديل)
 function renderTasks() {
@@ -688,6 +723,7 @@ document.getElementById('reset-theme').addEventListener('click', () => {
         if (result.isConfirmed) {
             localStorage.removeItem('themeColor');
             localStorage.removeItem('customBg');
+            localStorage.removeItem('buttonsThemeColor');
             location.reload(); 
         }
     });
