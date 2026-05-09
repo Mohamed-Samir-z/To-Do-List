@@ -35,7 +35,7 @@ body.dark-theme {
 .dark-mode-btn {
     position: fixed;
     top: 15px;
-    left: 60px;
+    right: 60px;
     /* جنب زرار الترس */
     background: var(--card-bg);
     border: none;
@@ -55,12 +55,20 @@ body {
     justify-content: flex-start;
     align-items: center;
     min-height: 100vh;
+    width: 100%;
     background-color: var(--bg-color);
     padding: 20px;
     overflow-x: hidden;
     overflow-y: auto;
     color: var(--text-color);
     transition: 0.3s;
+    background-position: center center;
+    /* يخلي السنتر بتاع الصورة في نص الشاشة */
+    background-repeat: no-repeat;
+    /* الصورة متتكررش */
+    background-attachment: fixed;
+    /* يخلي الصورة مثل الشاشة */
+    background-size: cover;
 }
 
 
@@ -69,7 +77,7 @@ body {
 .settings-btn {
     position: fixed;
     top: 15px;
-    left: 13px;
+    right: 13px;
     /* عشان يبقى بعيد عن الساعة */
     z-index: 1001;
     display: flex;
@@ -106,6 +114,19 @@ body {
 .sidebar.open {
     left: 0;
     /* تظهر لما نديها كلاس open */
+}
+
+/* الحالة الطبيعية للترس */
+.settings-btn {
+    transition: transform 0.5s ease-in-out;
+    /* حركة ناعمة لمدة نص ثانية */
+    display: inline-block;
+}
+
+/* الكلاس اللي هيتضاف بالجافا سكريبت لما السايد بار تفتح */
+.settings-btn.rotate {
+    transform: rotate(180deg);
+    /* يلف نص لفة، أو خليها 360 لفة كاملة */
 }
 
 .upload-btn {

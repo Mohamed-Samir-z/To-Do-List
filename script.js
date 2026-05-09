@@ -39,7 +39,7 @@ function updateClock() {
 
 // 2. دالة إدارة الاسم (تم دمج النسختين في واحدة سليمة)
 async function checkUsername() {
-    const APP_VERSION = "v4.8"; 
+    const APP_VERSION = "v4.9"; 
     let savedVersion = localStorage.getItem("appVersion");
     let name = localStorage.getItem("userName");
     let isRandom = localStorage.getItem("isRandomName") === "true";
@@ -427,6 +427,8 @@ function deleteTask(index) {
         if (result.isConfirmed) {
             tasks = [...tasksBackup];
             saveAndRefresh();
+            audio.currentTime = 0;
+            audio.play().catch(() => {});
         }
     });
 }
@@ -530,16 +532,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
 const sidebar = document.getElementById('settings-sidebar');
 const openBtn = document.getElementById('settings-toggle');
-const closeBtn = document.getElementById('close-sidebar');
 
 // فتح القائمة
 openBtn.addEventListener('click', () => {
-    sidebar.classList.add('open');
-});
-
-// قفل القائمة
-closeBtn.addEventListener('click', () => {
-    sidebar.classList.remove('open');
+    sidebar.classList.toggle("open");
+    openBtn.classList.toggle("rotate"); // هيضيف الكلاس لو مش موجود ويشيله لو موجود
 });
 
 // قفل القائمة لو ضغطت براها
